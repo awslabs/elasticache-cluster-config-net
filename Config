@@ -1,0 +1,24 @@
+# -*-perl-*-
+
+package.ElastiCacheNetClusterClient = {
+    interfaces = (1.0);
+
+    deploy = {
+        generic = true;
+    };
+
+
+    # CopySrcBuild will copy  all files and directories inside the
+    # configuration/ directory into the root of the build/ directory.
+    build-system = copysrc;
+    build-environment = {
+        chroot = basic;
+        network-access = blocked;
+    };
+
+    build-tools = {
+        1.0 = {
+            CopySrcBuild = 1.0;
+        };
+    };
+};

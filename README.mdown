@@ -1,0 +1,20 @@
+# Amazon ElastiCache Cluster Client
+
+Amazon ElastiCache Cluster Client is an enhanced .NET library that supports connecting to an ElastiCache cluster for Auto Discovery. This client library is an extension built upon Enyim and is released under the [Amazon Software License](http://aws.amazon.com/asl/).
+
+## Usage
+
+To use Amazon ElastiCache with Auto Discovery, the MemcachedClient must be passed the AutoClientConfig object which automatically updates the internal server pool.
+An AutoClientConfig can be created from the App.config if there is a clusterclient section or you can pass a different section.
+	
+	var client = new MemcachedClient(new AutoClientConfig());
+
+AutoClientConfig can also be instantiated by providing it an AutoConfigSetup or simply provide the hostname and port like so:
+
+	var client = new MemcachedClient(new AutoClientConfig("hostname", 11211));
+
+Once instantiation occurs in this way, MemcachedClient can be used the same way as the [Enyim Client](https://github.com/enyim/EnyimMemcached). The only difference is a background process polls the cluster and updates nodes when changes occur.
+
+## Requirements
+
+You'll need .NET Framework 3.5 or later to use the precompiled binaries. To build the client, you'll need Visual Studio 2010 with strong validation [turned off](https://github.com/enyim/EnyimMemcached/wiki/Release-builds#signing).
