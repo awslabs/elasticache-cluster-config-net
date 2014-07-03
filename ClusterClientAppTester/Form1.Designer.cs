@@ -320,7 +320,7 @@
             // LabelVersion
             // 
             this.LabelVersion.AutoSize = true;
-            this.LabelVersion.Location = new System.Drawing.Point(40, 80);
+            this.LabelVersion.Location = new System.Drawing.Point(6, 80);
             this.LabelVersion.Name = "LabelVersion";
             this.LabelVersion.Size = new System.Drawing.Size(0, 13);
             this.LabelVersion.TabIndex = 9;

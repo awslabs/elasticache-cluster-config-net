@@ -28,6 +28,8 @@ namespace NetClusterClient.Pools
 
         protected override IMemcachedNode CreateNode(IPEndPoint endpoint)
         {
+            if (endpoint == null)
+                throw new ArgumentNullException("endpoint");
             return new BinaryNode(endpoint, this.configuration.SocketPool, this.authenticationProvider);
         }
 

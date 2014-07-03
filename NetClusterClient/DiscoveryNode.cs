@@ -36,15 +36,14 @@ namespace NetClusterClient
         public int ClusterVersion { get; private set; }
 
         /// <summary>
-        /// The Endpoint connection to access cluster info
+        /// The number of nodes running inside of the cluster
         /// </summary>
-        public IPEndPoint EndPoint { get; private set; }
+        public int NodesInCluster { get { return this.nodes.Count; } }
 
-        /// <summary>
-        /// The Node which is connected to the endpoint to send initial requests to
-        /// </summary>
-        public IMemcachedNode Node { get; private set; }
+        private IPEndPoint EndPoint;
 
+        private IMemcachedNode Node;
+        
         private AutoClientConfig config;
 
         private List<IMemcachedNode> nodes = new List<IMemcachedNode>();
@@ -87,7 +86,6 @@ namespace NetClusterClient
 
             this.ResolveEndPoint();
             
-            this.Node = new MemcachedNode(this.EndPoint, config.SocketPool);
             this.nodes.Add(this.Node);
         }
 
@@ -157,19 +155,32 @@ namespace NetClusterClient
                 try
                 {
                     // This avoids timing out from requesting the config from the endpoint
-                    var node = tries % this.nodes.Count;
-                    var result = this.nodes.ToArray()[node].Execute(command);
+                    foreach (var node in this.nodes.ToArray())
+                    {
+                        try
+                        {
+                            var result = node.Execute(command);
 
-                    if (result.Success)
-                    {
-                        items = Encoding.UTF8.GetString(command.Result.Data.Array, command.Result.Data.Offset, command.Result.Data.Count).Split('\n');
-                        waiting = false;
+                            if (result.Success)
+                            {
+                                items = Encoding.UTF8.GetString(command.Result.Data.Array, command.Result.Data.Offset, command.Result.Data.Count).Split('\n');
+                                waiting = false;
+                                break;
+                            }
+                            else
+                            {
+                                message = result.Message;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            message = ex.Message;
+                        }
                     }
-                    else
-                    {
-                        message = result.Message;
+
+                    if (waiting)
                         System.Threading.Thread.Sleep(this.delay);
-                    }
+
                 }
                 catch (Exception ex)
                 {

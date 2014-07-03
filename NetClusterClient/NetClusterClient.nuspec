@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://aws.amazon.com/asl/</licenseUrl>
+    <projectUrl>http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/AutoDiscovery.html</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <copyright>Copyright 2014</copyright>
+    <tags>AWS Amazon cloud elasticache clusterclient aws amazon netclusterclient elasticachenetclusterclient ElastiCache</tags>
+    <dependencies>
+        <dependency id="EnyimMemcached" version="2.12" />
+    </dependencies>
+  </metadata>
+</package>

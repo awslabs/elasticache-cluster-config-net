@@ -154,14 +154,15 @@ namespace ClusterClientAppTester
 
         private void TimerPoller_Tick(object sender, EventArgs e)
         {
-            this.LabelVersion.Text = String.Format("Config version is: {0}", this.config.DiscoveryNode.ClusterVersion);            
+            this.LabelVersion.Text = String.Format("Config version is: {0}   ", this.config.DiscoveryNode.ClusterVersion)
+                                        + String.Format("Number of nodes: {0}", this.config.DiscoveryNode.NodesInCluster);
             this.ProgressPoller.PerformStep();
             if (this.ProgressPoller.Value == 60)
             {
                 this.ProgressPoller.Value = 0;
-                this.ProgressBarStatus.Value = 100;
-                this.LabelStatus.Text = "Poller cycle completed";
-            } 
+                this.ProgressBarStatus.Value = 100;                
+                this.LabelStatus.Text = "Poller cycle completed."; 
+            }
             
         }
     }
