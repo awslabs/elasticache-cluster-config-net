@@ -15,6 +15,21 @@ AutoClientConfig can also be instantiated by providing it an AutoConfigSetup or 
 
 Once instantiation occurs in this way, MemcachedClient can be used the same way as the [Enyim Client](https://github.com/enyim/EnyimMemcached). The only difference is a background process polls the cluster and updates nodes when changes occur.
 
+## App.config
+To configure the AutoClient from app.config the section clusterclient, or the specified section in the constructor, must have an endpoint that contains a hostname and port specified as so:
+
+    <endpoint hostname="clusterclient.4mpstz.cfg.use1.cache.amazonaws.com" port="11211" />
+
+There are also optional regions as shown below:
+
+    <node nodeTries="5" nodeDelay="1000" />
+    <poller initialDelay="0" intervalDelay="60000" />
+
+These settings as well as all the settings included in Enyim can be configured through the app.config as seen [here](https://github.com/enyim/EnyimMemcached/wiki/MemcachedClient-Configuration#appconfig).
+
+## Enyim Client
+Because this binary is used as a configuration object for the Enyim MemcachedClient, usage beyond instantiation is all exactly the same so refer to [this wiki](https://github.com/enyim/EnyimMemcached/wiki) or [this google group](https://groups.google.com/forum/#!forum/enyim-memcached) on how to used the actual client.
+
 ## Requirements
 
 You'll need .NET Framework 3.5 or later to use the precompiled binaries. To build the client, you'll need Visual Studio 2010 with strong validation [turned off](https://github.com/enyim/EnyimMemcached/wiki/Release-builds#signing).
