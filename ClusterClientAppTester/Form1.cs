@@ -34,8 +34,12 @@ namespace ClusterClientAppTester
             {
                 this.LabelStatus.Text = "Instantiating";
 
+                // Instantiates config from app.config in the clusterclient section
                 this.config = new AutoClientConfig();
+
                 mem = new MemcachedClient(config);
+
+                #region UI Stuff
 
                 this.TimerPoller.Enabled = false;
                 this.ProgressPoller.Value = 0;
@@ -52,6 +56,8 @@ namespace ClusterClientAppTester
                     this.LabelStatus.Text = "Instantiation Success";
                     this.ProgressBarStatus.Value = 25;
                 }
+
+                #endregion
             }
             catch (Exception ex)
             {
@@ -65,8 +71,12 @@ namespace ClusterClientAppTester
             {
                 this.LabelStatus.Text = "Instantiating";
 
+                // Instantiates client with default settings and uses the hostname and port provided
                 this.config = new AutoClientConfig(this.TextOlder.Text, Convert.ToInt32(this.TextPort.Text));
+
                 mem = new MemcachedClient(config);
+
+                #region UI Stuff
 
                 this.TimerPoller.Enabled = false;
                 this.ProgressPoller.Value = 0;
@@ -83,6 +93,8 @@ namespace ClusterClientAppTester
                     this.LabelStatus.Text = "Old Instantiation Success";
                     this.ProgressBarStatus.Value = 25;
                 }
+
+                #endregion
             }
             catch (Exception ex)
             {
@@ -96,8 +108,11 @@ namespace ClusterClientAppTester
             {
                 this.LabelStatus.Text = "Storing";
 
+                // Stores the same as an Enyim client, just that the nodes are already set through the config object
                 if (mem.Store(Enyim.Caching.Memcached.StoreMode.Set, this.TextKey.Text, this.TextValue.Text))
                 {
+                    #region UI Stuff
+
                     this.TextGetKey.Text = this.TextKey.Text;
                     this.ButtonGet.Enabled = true;
                     this.LabelStatus.Text = "Storing Success";
@@ -105,6 +120,8 @@ namespace ClusterClientAppTester
                     {
                         this.ProgressBarStatus.Value = 50;
                     }
+
+                    #endregion
                 }
                 else
                 {
@@ -123,7 +140,10 @@ namespace ClusterClientAppTester
             {
                 this.LabelStatus.Text = "Getting";
 
+                // Gets the value the same way as a normal Enyim client from the dynamic nodes provided from the config
                 var value = mem.Get(TextGetKey.Text) as string;
+
+                #region UI Stuff
 
                 if (value == null)
                 {
@@ -138,6 +158,8 @@ namespace ClusterClientAppTester
                         this.ProgressBarStatus.Value = 75;
                     }
                 }
+
+                #endregion
             }
             catch (Exception ex)
             {

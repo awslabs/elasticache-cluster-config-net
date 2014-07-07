@@ -28,7 +28,7 @@ There are also optional regions as shown below:
 These settings as well as all the settings included in Enyim can be configured through the app.config as seen [here](https://github.com/enyim/EnyimMemcached/wiki/MemcachedClient-Configuration#appconfig).
 
 ## Enyim Client
-Because this binary is used as a configuration object for the Enyim MemcachedClient, usage beyond instantiation is all exactly the same so refer to [this wiki](https://github.com/enyim/EnyimMemcached/wiki) or [this google group](https://groups.google.com/forum/#!forum/enyim-memcached) on how to used the actual client.
+Because this binary is used as a configuration object for the Enyim MemcachedClient, usage beyond instantiation is all exactly the same so refer to [this wiki](https://github.com/enyim/EnyimMemcached/wiki) or [this google group](https://groups.google.com/forum/#!forum/enyim-memcached) on how to use the actual client.
 
 ## Requirements
 
