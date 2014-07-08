@@ -7,13 +7,13 @@ using System.Net;
 using System.Configuration;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
-using NetClusterClient.Helpers;
-using NetClusterClient.Operations;
-using NetClusterClient.Pools;
+using ElastiCacheCluster.Helpers;
+using ElastiCacheCluster.Operations;
+using ElastiCacheCluster.Pools;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Protocol;
 
-namespace NetClusterClient
+namespace ElastiCacheCluster
 {
     /// <summary>
     /// A class that manages the discover of endpoints inside of an ElastiCache cluster
@@ -44,7 +44,7 @@ namespace NetClusterClient
 
         private IMemcachedNode Node;
         
-        private AutoClientConfig config;
+        private ElastiCacheClusterConfig config;
 
         private List<IMemcachedNode> nodes = new List<IMemcachedNode>();
 
@@ -63,7 +63,7 @@ namespace NetClusterClient
         /// <param name="hostname">The host name of the cluster with .cfg. in name</param>
         /// <param name="port">The port of the cluster</param>
         /// <param name="config">The config of the client to access the SocketPool</param>
-        public DiscoveryNode(AutoClientConfig config, string hostname, int port)
+        internal DiscoveryNode(ElastiCacheClusterConfig config, string hostname, int port)
             : this(config, hostname, port, DEFAULT_TRY_COUNT, DEFAULT_TRY_DELAY) { }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace NetClusterClient
         /// <param name="config">The config of the client to access the SocketPool</param>
         /// <param name="tries">The number of tries for requesting config info</param>
         /// <param name="delay">The time, in miliseconds, to wait between tries</param>
-        public DiscoveryNode(AutoClientConfig config, string hostname, int port, int tries, int delay)
+        internal DiscoveryNode(ElastiCacheClusterConfig config, string hostname, int port, int tries, int delay)
         {            
             this.hostname = hostname;
             this.port = port;
@@ -92,7 +92,7 @@ namespace NetClusterClient
         /// <summary>
         /// Used to start a poller that checks for changes in the cluster client configuration
         /// </summary>
-        public void StartPoller()
+        internal void StartPoller()
         {
             this.poller = new ConfigurationPoller(this.config);
         }
@@ -102,7 +102,7 @@ namespace NetClusterClient
         /// </summary>
         /// <param name="initialDelay">Time to wait, in miliseconds, before the first poll takes place</param>
         /// <param name="intervalDelay">Time between pollings, in miliseconds</param>
-        public void StartPoller(int initialDelay, int intervalDelay)
+        internal void StartPoller(int initialDelay, int intervalDelay)
         {
             this.poller = new ConfigurationPoller(this.config, initialDelay, intervalDelay);
         }
@@ -111,7 +111,7 @@ namespace NetClusterClient
         /// Parses the string NodeConfig into a list of IPEndPoints for configuration
         /// </summary>
         /// <returns>A list of IPEndPoints for config to use</returns>
-        public List<IPEndPoint> GetEndPointList()
+        internal List<IPEndPoint> GetEndPointList()
         {
             try
             {
@@ -136,7 +136,7 @@ namespace NetClusterClient
         /// 1.4.14
         /// </summary>
         /// <returns>A string in the format "hostname1|ip1|port1 hostname2|ip2|port2 ..."</returns>
-        public string GetNodeConfig()
+        internal string GetNodeConfig()
         {
             var tries = this.tries;
             var nodeVersion = this.GetNodeVersion();
@@ -202,7 +202,7 @@ namespace NetClusterClient
         /// Finds the version of Memcached the Elasticache setup is running on
         /// </summary>
         /// <returns>Version of memcahced running on nodes</returns>
-        public Version GetNodeVersion()
+        internal Version GetNodeVersion()
         {
             if (this.NodeVersion != null)
             {
@@ -229,7 +229,7 @@ namespace NetClusterClient
         /// Tries to resolve the endpoint ip, used if the connection fails
         /// </summary>
         /// <returns>The resolved endpoint as an ip and port</returns>
-        public IPEndPoint ResolveEndPoint()
+        internal IPEndPoint ResolveEndPoint()
         {
             IPHostEntry entry = null;
             var waiting = true;

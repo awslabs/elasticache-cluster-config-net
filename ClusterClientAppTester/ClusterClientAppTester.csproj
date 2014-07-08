@@ -83,9 +83,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetClusterClient\NetClusterClient.csproj">
+    <ProjectReference Include="..\ElastiCacheCluster\ElastiCacheCluster.csproj">
       <Project>{1255ebd3-0340-4af6-a5f2-3d97d8709546}</Project>
-      <Name>NetClusterClient</Name>
+      <Name>ElastiCacheCluster</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

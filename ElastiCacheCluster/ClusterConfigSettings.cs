@@ -6,25 +6,30 @@ using System.Configuration;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
 
-namespace NetClusterClient
+namespace ElastiCacheCluster
 {
     /// <summary>
     /// A configsection used to configure the client config
     /// </summary>
-    public class AutoConfigSetup : ConfigurationSection
+    public class ClusterConfigSettings : ConfigurationSection
     {
         /// <summary>
         /// For config manager
         /// </summary>
-        public AutoConfigSetup() { }
+        public ClusterConfigSettings() { }
 
         /// <summary>
         /// Used to initialize a setup with a host and port
         /// </summary>
         /// <param name="hostname">Cluster hostname</param>
         /// <param name="port">Cluster port</param>
-        public AutoConfigSetup(string hostname, int port)
+        public ClusterConfigSettings(string hostname, int port)
         {
+            if (string.IsNullOrEmpty(hostname))
+                throw new ArgumentNullException("hostname");
+            if (port <= 0)
+                throw new ArgumentException("Port cannot be less than or equal to zero");
+
             this.ClusterEndPoint.HostName = hostname;
             this.ClusterEndPoint.Port = port;
         }

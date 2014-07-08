@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Enyim.Caching;
-using NetClusterClient;
+using ElastiCacheCluster;
 
 namespace ClusterClientAppTester
 {
     public partial class Form1 : Form
     {
         private MemcachedClient mem;
-        private AutoClientConfig config;
+        private ElastiCacheClusterConfig config;
 
         public Form1()
         {
@@ -33,11 +33,11 @@ namespace ClusterClientAppTester
             try
             {
                 this.LabelStatus.Text = "Instantiating";
-
+                
                 // Instantiates config from app.config in the clusterclient section
-                this.config = new AutoClientConfig();
-
-                mem = new MemcachedClient(config);
+                this.config = new ElastiCacheClusterConfig();
+                
+                mem = new MemcachedClient(this.config); 
 
                 #region UI Stuff
 
@@ -72,9 +72,9 @@ namespace ClusterClientAppTester
                 this.LabelStatus.Text = "Instantiating";
 
                 // Instantiates client with default settings and uses the hostname and port provided
-                this.config = new AutoClientConfig(this.TextOlder.Text, Convert.ToInt32(this.TextPort.Text));
+                this.config = new ElastiCacheClusterConfig(this.TextOlder.Text, Convert.ToInt32(this.TextPort.Text));
 
-                mem = new MemcachedClient(config);
+                this.mem = new MemcachedClient(this.config);
 
                 #region UI Stuff
 
@@ -141,17 +141,17 @@ namespace ClusterClientAppTester
                 this.LabelStatus.Text = "Getting";
 
                 // Gets the value the same way as a normal Enyim client from the dynamic nodes provided from the config
-                var value = mem.Get(TextGetKey.Text) as string;
+                object val;
+                if (!mem.TryGet(TextGetKey.Text, out val))
+                {
 
                 #region UI Stuff
 
-                if (value == null)
-                {
                     this.LabelStatus.Text = "Failed to get";
                 }
                 else
                 {
-                    this.LabelValue.Text = value;
+                    this.LabelValue.Text = val as string;
                     this.LabelStatus.Text = "Getting Success";
                     if (this.ProgressBarStatus.Value < 75)
                     {

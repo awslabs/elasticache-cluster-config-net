@@ -4,12 +4,12 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace NetClusterClient.Helpers
+namespace ElastiCacheCluster.Helpers
 {
     /// <summary>
     /// A class used to parse configs of Auto Discovery
     /// </summary>
-    public static class AddrUtil
+    internal static class AddrUtil
     {
         /// <summary>
         /// Creates a list of endpoints from a string returned in the config request

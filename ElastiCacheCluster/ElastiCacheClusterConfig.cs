@@ -5,28 +5,28 @@ using Enyim.Caching.Memcached;
 using Enyim.Reflection;
 using Enyim.Caching.Memcached.Protocol.Binary;
 using Enyim.Caching.Configuration;
-using NetClusterClient.Pools;
+using ElastiCacheCluster.Pools;
 using System.Configuration;
 
-namespace NetClusterClient
+namespace ElastiCacheCluster
 {
     /// <summary>
     /// Configuration class for auto discovery
     /// </summary>
-    public class AutoClientConfig : IMemcachedClientConfiguration
+    public class ElastiCacheClusterConfig : IMemcachedClientConfiguration
     {
-        internal static readonly AutoConfigSetup DefaultSettings = ConfigurationManager.GetSection("clusterclient") as AutoConfigSetup;
+        internal static readonly ClusterConfigSettings DefaultSettings = ConfigurationManager.GetSection("clusterclient") as ClusterConfigSettings;
 
         // these are lazy initialized in the getters
         private Type nodeLocator;
         private ITranscoder transcoder;
         private IMemcachedKeyTransformer keyTransformer;
-        private AutoConfigSetup setup;
+        private ClusterConfigSettings setup;
 
         /// <summary>
         /// The server pool that is updated by the poller
         /// </summary>
-        public AutoServerPool Pool { get; private set; }
+        internal AutoServerPool Pool { get; private set; }
 
         /// <summary>
         /// The node used to check the cluster's configuration
@@ -36,29 +36,29 @@ namespace NetClusterClient
         /// <summary>
         /// Initializes a MemcahcedClient config with auto discovery enabled from the app.config clusterclient section
         /// </summary>
-        public AutoClientConfig()
+        public ElastiCacheClusterConfig()
             : this(DefaultSettings) { }
 
         /// <summary>
         /// Initializes a MemcahcedClient config with auto discovery enabled from the app.config with the specified section
         /// </summary>
         /// <param name="section">The section to get config settings from</param>
-        public AutoClientConfig(string section)
-            : this(ConfigurationManager.GetSection(section) as AutoConfigSetup) { }
+        public ElastiCacheClusterConfig(string section)
+            : this(ConfigurationManager.GetSection(section) as ClusterConfigSettings) { }
 
         /// <summary>
         /// Initializes a MemcahcedClient config with auto discovery enabled
         /// </summary>
         /// <param name="hostname">The hostname of the cluster containing ".cfg."</param>
         /// <param name="port">The port to connect to for communication</param>
-        public AutoClientConfig(string hostname, int port)
-            : this(new AutoConfigSetup(hostname, port)) { }
+        public ElastiCacheClusterConfig(string hostname, int port)
+            : this(new ClusterConfigSettings(hostname, port)) { }
 
         /// <summary>
         /// Initializes a MemcahcedClient config with auto discovery enabled using the setup provided
         /// </summary>
         /// <param name="setup">The setup to get conifg settings from</param>
-        public AutoClientConfig(AutoConfigSetup setup)
+        public ElastiCacheClusterConfig(ClusterConfigSettings setup)
         {
             if (String.IsNullOrEmpty(setup.ClusterEndPoint.HostName))
                 throw new ArgumentNullException("hostname");

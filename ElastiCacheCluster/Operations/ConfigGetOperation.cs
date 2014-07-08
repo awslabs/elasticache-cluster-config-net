@@ -8,14 +8,14 @@ using System.Text;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Results.Extensions;
 using Enyim.Caching.Memcached;
-using NetClusterClient.Helpers;
+using ElastiCacheCluster.Helpers;
 
-namespace NetClusterClient
+namespace ElastiCacheCluster
 {
     /// <summary>
     /// Used to get auto discovery information from ElastiCache endpoints
     /// </summary>
-    public class ConfigGetOperation : SingleItemOperation, IGetOperation
+    internal class ConfigGetOperation : SingleItemOperation, IGetOperation
     {
         private CacheItem result;
 

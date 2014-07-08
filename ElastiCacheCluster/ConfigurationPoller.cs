@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace NetClusterClient
+namespace ElastiCacheCluster
 {
     /// <summary>
     /// A poller used to reconfigure the client servers when updates occur to the cluster configuration
     /// </summary>
-    public class ConfigurationPoller
+    internal class ConfigurationPoller
     {
         private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(ConfigurationPoller));
 
@@ -29,7 +29,7 @@ namespace NetClusterClient
         /// Creates a poller for Auto Discovery with the default intervals
         /// </summary>
         /// <param name="client">The memcached client to update servers for</param>
-        public ConfigurationPoller(AutoClientConfig config)
+        public ConfigurationPoller(ElastiCacheClusterConfig config)
             : this(config, DEFAULT_INITIAL_DELAY, DEFAULT_INTERVAL_DELAY) { }
                 
         /// <summary>
@@ -38,7 +38,7 @@ namespace NetClusterClient
         /// <param name="client">The memcached client to update servers for</param>
         /// <param name="initialDelay">The amount of time before the first polling occurs in miliseconds</param>
         /// <param name="intervalDelay">The amount of time between polling operations in miliseconds</param>
-        public ConfigurationPoller(AutoClientConfig config, int initialDelay, int intervalDelay)
+        public ConfigurationPoller(ElastiCacheClusterConfig config, int initialDelay, int intervalDelay)
         {
             TimerCallback callback = this.poll;
 
@@ -52,7 +52,7 @@ namespace NetClusterClient
         /// </summary>
         private void poll(Object configObject)
         {
-            AutoClientConfig config = (AutoClientConfig)configObject;
+            ElastiCacheClusterConfig config = (ElastiCacheClusterConfig)configObject;
             log.Debug("Polling...");
             
             try

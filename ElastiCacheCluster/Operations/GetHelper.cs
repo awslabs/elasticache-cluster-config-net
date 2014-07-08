@@ -1,9 +1,9 @@
 using Enyim.Caching.Memcached;
-using NetClusterClient.Helpers;
+using ElastiCacheCluster.Helpers;
 using System;
 using System.Globalization;
 
-namespace NetClusterClient.Operations
+namespace ElastiCacheCluster.Operations
 {
 	internal static class GetHelper
 	{

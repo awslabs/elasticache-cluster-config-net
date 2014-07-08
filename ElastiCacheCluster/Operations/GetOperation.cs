@@ -2,11 +2,11 @@ using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Results.Extensions;
-using NetClusterClient.Helpers;
+using ElastiCacheCluster.Helpers;
 
-namespace NetClusterClient.Operations
+namespace ElastiCacheCluster.Operations
 {
-	public class GetOperation : SingleItemOperation, IGetOperation
+	internal class GetOperation : SingleItemOperation, IGetOperation
 	{
 		private CacheItem result;
 

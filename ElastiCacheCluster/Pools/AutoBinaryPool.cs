@@ -9,12 +9,12 @@ using System.Security;
 using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol.Binary;
 
-namespace NetClusterClient.Pools
+namespace ElastiCacheCluster.Pools
 {
     /// <summary>
     /// Server pool implementing the binary protocol.
     /// </summary>
-    public class AutoBinaryPool : AutoServerPool
+    internal class AutoBinaryPool : AutoServerPool
     {
         ISaslAuthenticationProvider authenticationProvider;
         IMemcachedClientConfiguration configuration;

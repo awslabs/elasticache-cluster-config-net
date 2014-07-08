@@ -4,7 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using Enyim.Caching.Memcached;
 
-namespace NetClusterClient.Helpers
+namespace ElastiCacheCluster.Helpers
 {
 	internal static class TextSocketHelper
 	{

@@ -7,12 +7,12 @@ using System.Threading;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
 
-namespace NetClusterClient.Pools
+namespace ElastiCacheCluster.Pools
 {
     /// <summary>
     /// A server pool just like the default that enables safely changing the servers of the locator
     /// </summary>
-    public class AutoServerPool : IServerPool, IDisposable
+    internal class AutoServerPool : IServerPool, IDisposable
     {
         private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(DefaultServerPool));
 
