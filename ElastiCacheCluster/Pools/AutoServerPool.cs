@@ -223,6 +223,12 @@ namespace ElastiCacheCluster.Pools
             locator.Initialize(allNodes);
 
             this.nodeLocator = locator;
+
+            var config = this.configuration as ElastiCacheClusterConfig;
+            if (config.setup.ClusterPoller.IntervalDelay < 0)
+                config.DiscoveryNode.StartPoller();
+            else
+                config.DiscoveryNode.StartPoller(config.setup.ClusterPoller.IntervalDelay);
         }
 
         event Action<IMemcachedNode> IServerPool.NodeFailed

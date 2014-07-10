@@ -26,13 +26,13 @@ namespace LocalSimulationTests
             switch (requestNum)
             {
                 case 1:
-                    bytes = Encoding.UTF8.GetBytes(String.Format("{0}\r\ncluster.0001.use1.cache.amazon.aws.com|10.10.10.1|11211 cluster.0002.use1.cache.amazon.aws.com|10.10.10.2|11211 cluster.0003.use1.cache.amazon.aws.com|10.10.10.3|11211", this.requestNum));
+                    bytes = Encoding.UTF8.GetBytes(String.Format("{0}\r\ncluster.0001.use1.cache.amazon.aws.com|10.10.10.1|11211 cluster.0002.use1.cache.amazon.aws.com|10.10.10.2|11211 cluster.0003.use1.cache.amazon.aws.com|10.10.10.3|11211\r\n", this.requestNum));
                     break;
                 case 2:
-                    bytes = Encoding.UTF8.GetBytes(String.Format("{0}\r\ncluster.0002.use1.cache.amazon.aws.com|10.10.10.2|11211 cluster.0003.use1.cache.amazon.aws.com|10.10.10.3|11211", this.requestNum));
+                    bytes = Encoding.UTF8.GetBytes(String.Format("{0}\r\ncluster.0002.use1.cache.amazon.aws.com|10.10.10.2|11211 cluster.0003.use1.cache.amazon.aws.com|10.10.10.3|11211\r\n", this.requestNum));
                     break;
                 default:
-                    bytes = Encoding.UTF8.GetBytes(String.Format("{0}\r\ncluster.0001.use1.cache.amazon.aws.com|10.10.10.1|11211", this.requestNum));
+                    bytes = Encoding.UTF8.GetBytes(String.Format("{0}\r\ncluster.0001.use1.cache.amazon.aws.com|10.10.10.1|11211\r\n", this.requestNum));
                     break;
             }
             this.requestNum++;

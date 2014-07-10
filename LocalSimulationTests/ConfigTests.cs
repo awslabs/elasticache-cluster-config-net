@@ -21,7 +21,7 @@ namespace LocalSimulationTests
             config = new ElastiCacheClusterConfig(settings);
             this.config.DiscoveryNode.Dispose();
         }
-
+        
         [TestMethod]
         public void InitialRequestTest()
         {
@@ -29,13 +29,8 @@ namespace LocalSimulationTests
             ClusterConfigSettings settings = new ClusterConfigSettings("www.cfg.org", 11211);
             settings.NodeFactory = new NodeFactory();
             config = new ElastiCacheClusterConfig(settings);
-
+            
             client = new MemcachedClient(config);
-
-            // This is because the timer can start miliseconds late and the checks on parsing will fail
-            // This delay shouldn't be an issue because a programmer's application should anticipate 
-            // failing stores and gets because this is a cache. Stores and gets shouldn't happen immediatly either
-            while (config.DiscoveryNode.ClusterVersion == 0);
 
             Assert.AreEqual(new Version("1.4.14"), config.DiscoveryNode.NodeVersion);
             Assert.AreEqual(1, config.DiscoveryNode.ClusterVersion);

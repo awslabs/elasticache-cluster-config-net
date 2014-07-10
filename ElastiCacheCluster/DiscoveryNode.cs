@@ -40,6 +40,9 @@ namespace ElastiCacheCluster
         /// </summary>
         public int NodesInCluster { get { return this.nodes.Count; } }
 
+
+        public bool PollerStarted { get; internal set; }
+
         private IPEndPoint EndPoint;
 
         private IMemcachedNode Node;
@@ -86,6 +89,8 @@ namespace ElastiCacheCluster
             this.tries = tries;
             this.delay = delay;
 
+            this.PollerStarted = false;
+
             this.clusterLock = new Object();
             this.endpointLock = new Object();
             this.nodesLock = new Object();
@@ -99,6 +104,7 @@ namespace ElastiCacheCluster
         /// </summary>
         internal void StartPoller()
         {
+            this.config.Pool.UpdateLocator(new List<IPEndPoint>(new IPEndPoint[] { this.EndPoint }));
             this.poller = new ConfigurationPoller(this.config);
             this.poller.StartTimer();
         }

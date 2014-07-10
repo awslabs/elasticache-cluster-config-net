@@ -36,8 +36,8 @@ namespace ClusterClientAppTester
                 
                 // Instantiates config from app.config in the clusterclient section
                 this.config = new ElastiCacheClusterConfig();
-                
-                mem = new MemcachedClient(this.config); 
+
+                mem = new MemcachedClient(this.config);
 
                 #region UI Stuff
 

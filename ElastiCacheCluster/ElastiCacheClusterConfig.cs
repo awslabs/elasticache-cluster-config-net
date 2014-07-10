@@ -204,11 +204,6 @@ namespace ElastiCacheCluster
                 default:                    
                     throw new ArgumentOutOfRangeException("Unknown protocol: " + (int)this.Protocol);
             }
-
-            if (setup.ClusterPoller.IntervalDelay < 0)
-                this.DiscoveryNode.StartPoller();
-            else
-                this.DiscoveryNode.StartPoller(setup.ClusterPoller.IntervalDelay);
             
             return this.Pool;
         }

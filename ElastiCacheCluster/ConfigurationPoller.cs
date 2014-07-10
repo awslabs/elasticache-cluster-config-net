@@ -47,6 +47,7 @@ namespace ElastiCacheCluster
         internal void StartTimer() {
             log.Debug("Starting timer");
             this.timer = new Timer(this.callback, this.config, 0, this.intervalDelay);
+            while (!this.config.DiscoveryNode.PollerStarted) ;
         }
 
         /// <summary>
@@ -65,6 +66,7 @@ namespace ElastiCacheCluster
                 {
                     config.Pool.UpdateLocator(endPoints);
                 }
+                config.DiscoveryNode.PollerStarted = true;
             }
             catch
             {
@@ -78,6 +80,7 @@ namespace ElastiCacheCluster
                     {
                         config.Pool.UpdateLocator(endPoints);
                     }
+                    config.DiscoveryNode.PollerStarted = true;
                 }
                 catch (Exception ex)
                 {
