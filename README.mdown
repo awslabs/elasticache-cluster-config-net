@@ -1,6 +1,6 @@
 # Amazon ElastiCache Cluster Configuration for .NET
 
-Amazon ElastiCache Cluster Configuration is an enhanced .NET library that supports connecting to an ElastiCache cluster for Auto Discovery. This client library is an extension built upon Enyim and is released under the [Amazon Software License](http://aws.amazon.com/asl/).
+Amazon ElastiCache Cluster Configuration is an enhanced .NET library that supports connecting to an ElastiCache cluster for Auto Discovery. This client library is an extension built upon Enyim and is released under the [Apache 2.0 License](http://aws.amazon.com/apache2.0/).
 
 ## Usage
 
@@ -23,7 +23,7 @@ To configure the AutoClient from app.config the section clusterclient, or the sp
 There are also optional regions as shown below:
 
     <node nodeTries="5" nodeDelay="1000" />
-    <poller initialDelay="0" intervalDelay="60000" />
+    <poller intervalDelay="60000" />
 
 These settings as well as all the settings included in Enyim can be configured through the app.config as seen [here](https://github.com/enyim/EnyimMemcached/wiki/MemcachedClient-Configuration#appconfig).
 

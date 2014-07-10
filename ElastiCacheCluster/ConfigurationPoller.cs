@@ -14,9 +14,6 @@ namespace ElastiCacheCluster
         private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(ConfigurationPoller));
 
         #region Defaults
-        
-        // No wait to start polling
-        private static readonly int DEFAULT_INITIAL_DELAY = 0;
 
         // Poll once every minute
         private static readonly int DEFAULT_INTERVAL_DELAY = 60000;
@@ -24,33 +21,38 @@ namespace ElastiCacheCluster
         #endregion
 
         private Timer timer;
+        private TimerCallback callback;
+        private int intervalDelay;
+        private ElastiCacheClusterConfig config;
 
         /// <summary>
         /// Creates a poller for Auto Discovery with the default intervals
         /// </summary>
         /// <param name="client">The memcached client to update servers for</param>
         public ConfigurationPoller(ElastiCacheClusterConfig config)
-            : this(config, DEFAULT_INITIAL_DELAY, DEFAULT_INTERVAL_DELAY) { }
+            : this(config, DEFAULT_INTERVAL_DELAY) { }
                 
         /// <summary>
         /// Creates a poller for Auto Discovery with the defined itnerval, delay, tries, and try delay for polling
         /// </summary>
         /// <param name="client">The memcached client to update servers for</param>
-        /// <param name="initialDelay">The amount of time before the first polling occurs in miliseconds</param>
         /// <param name="intervalDelay">The amount of time between polling operations in miliseconds</param>
-        public ConfigurationPoller(ElastiCacheClusterConfig config, int initialDelay, int intervalDelay)
+        public ConfigurationPoller(ElastiCacheClusterConfig config, int intervalDelay)
         {
-            TimerCallback callback = this.poll;
+            this.callback = this.poll;
+            this.intervalDelay = intervalDelay;
+            this.config = config;
+        }
 
+        internal void StartTimer() {
             log.Debug("Starting timer");
-            
-            this.timer = new Timer(callback, config, initialDelay, intervalDelay);            
+            this.timer = new Timer(this.callback, this.config, 0, this.intervalDelay);
         }
 
         /// <summary>
         /// Used by the poller's timer to update the cluster configuration if a new version is available
         /// </summary>
-        private void poll(Object configObject)
+        internal void poll(Object configObject)
         {
             ElastiCacheClusterConfig config = (ElastiCacheClusterConfig)configObject;
             log.Debug("Polling...");

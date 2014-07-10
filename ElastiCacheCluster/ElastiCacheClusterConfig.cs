@@ -6,6 +6,7 @@ using Enyim.Reflection;
 using Enyim.Caching.Memcached.Protocol.Binary;
 using Enyim.Caching.Configuration;
 using ElastiCacheCluster.Pools;
+using ElastiCacheCluster.Factories;
 using System.Configuration;
 
 namespace ElastiCacheCluster
@@ -21,12 +22,10 @@ namespace ElastiCacheCluster
         private Type nodeLocator;
         private ITranscoder transcoder;
         private IMemcachedKeyTransformer keyTransformer;
-        private ClusterConfigSettings setup;
 
-        /// <summary>
-        /// The server pool that is updated by the poller
-        /// </summary>
-        internal AutoServerPool Pool { get; private set; }
+        internal ClusterConfigSettings setup;
+        internal AutoServerPool Pool;
+        internal IConfigNodeFactory nodeFactory;
 
         /// <summary>
         /// The node used to check the cluster's configuration
@@ -72,6 +71,8 @@ namespace ElastiCacheCluster
             this.KeyTransformer = setup.KeyTransformer.CreateInstance() ?? new DefaultKeyTransformer();
             this.SocketPool = (ISocketPoolConfiguration)setup.SocketPool ?? new SocketPoolConfiguration();
             this.Authentication = (IAuthenticationConfiguration)setup.Authentication ?? new AuthenticationConfiguration();
+
+            this.nodeFactory = setup.NodeFactory ?? new DefaultConfigNodeFactory();
 
             if (setup.ClusterEndPoint.HostName.Contains(".cfg."))
             {
@@ -204,10 +205,10 @@ namespace ElastiCacheCluster
                     throw new ArgumentOutOfRangeException("Unknown protocol: " + (int)this.Protocol);
             }
 
-            if (setup.ClusterPoller.InitialDelay < 0 || setup.ClusterPoller.IntervalDelay < 0)
+            if (setup.ClusterPoller.IntervalDelay < 0)
                 this.DiscoveryNode.StartPoller();
             else
-                this.DiscoveryNode.StartPoller(setup.ClusterPoller.InitialDelay, setup.ClusterPoller.IntervalDelay);
+                this.DiscoveryNode.StartPoller(setup.ClusterPoller.IntervalDelay);
             
             return this.Pool;
         }

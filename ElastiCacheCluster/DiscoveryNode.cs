@@ -55,7 +55,9 @@ namespace ElastiCacheCluster
 
         private int tries;
         private int delay;
-                
+
+        private Object nodesLock, endpointLock, clusterLock;
+
         /// <summary>
         /// The node used to discover endpoints in an ElastiCache cluster
         /// </summary>
@@ -84,9 +86,12 @@ namespace ElastiCacheCluster
             this.tries = tries;
             this.delay = delay;
 
+            this.clusterLock = new Object();
+            this.endpointLock = new Object();
+            this.nodesLock = new Object();
+
             this.ResolveEndPoint();
-            
-            this.nodes.Add(this.Node);
+            this.GetNodeVersion();
         }
 
         /// <summary>
@@ -95,16 +100,17 @@ namespace ElastiCacheCluster
         internal void StartPoller()
         {
             this.poller = new ConfigurationPoller(this.config);
+            this.poller.StartTimer();
         }
 
         /// <summary>
         /// Used to start a poller that checks for changes in the cluster client configuration
         /// </summary>
-        /// <param name="initialDelay">Time to wait, in miliseconds, before the first poll takes place</param>
         /// <param name="intervalDelay">Time between pollings, in miliseconds</param>
-        internal void StartPoller(int initialDelay, int intervalDelay)
+        internal void StartPoller(int intervalDelay)
         {
-            this.poller = new ConfigurationPoller(this.config, initialDelay, intervalDelay);
+            this.poller = new ConfigurationPoller(this.config, intervalDelay);
+            this.poller.StartTimer();
         }
 
         /// <summary>
@@ -116,11 +122,15 @@ namespace ElastiCacheCluster
             try
             {
                 var endpoints = AddrUtil.HashEndPointList(this.GetNodeConfig());
-                this.nodes.Clear();
 
-                foreach (var point in endpoints)
+                lock (nodesLock)
                 {
-                    this.nodes.Add(new MemcachedNode(point, this.config.SocketPool));
+                    this.nodes.Clear();
+
+                    foreach (var point in endpoints)
+                    {
+                        this.nodes.Add(this.config.nodeFactory.CreateNode(point, this.config.SocketPool));
+                    }
                 }
 
                 return endpoints;
@@ -154,27 +164,31 @@ namespace ElastiCacheCluster
                 tries--;
                 try
                 {
-                    // This avoids timing out from requesting the config from the endpoint
-                    foreach (var node in this.nodes.ToArray())
+                    lock (nodesLock)
                     {
-                        try
+                        // This avoids timing out from requesting the config from the endpoint
+                        foreach (var node in this.nodes.ToArray())
                         {
-                            var result = node.Execute(command);
+                            try
+                            {
+                                var result = node.Execute(command);
 
-                            if (result.Success)
-                            {
-                                items = Encoding.UTF8.GetString(command.Result.Data.Array, command.Result.Data.Offset, command.Result.Data.Count).Split('\n');
-                                waiting = false;
-                                break;
+                                if (result.Success)
+                                {
+                                    var configCommand = command as IConfigOperation;
+                                    items = Encoding.UTF8.GetString(configCommand.ConfigResult.Data.Array, configCommand.ConfigResult.Data.Offset, configCommand.ConfigResult.Data.Count).Split('\n');
+                                    waiting = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    message = result.Message;
+                                }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                message = result.Message;
+                                message = ex.Message;
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            message = ex.Message;
                         }
                     }
 
@@ -194,7 +208,11 @@ namespace ElastiCacheCluster
                 throw new TimeoutException(String.Format("Could not get config of version " + this.NodeVersion.ToString() + ". Tries: {0} Delay: {1}. " + message, this.tries, this.delay));
             }
 
-            this.ClusterVersion = Convert.ToInt32(items[0]);
+            lock (clusterLock)
+            {
+                if (this.ClusterVersion < Convert.ToInt32(items[0]))
+                    this.ClusterVersion = Convert.ToInt32(items[0]);
+            }
             return items[1];
         }
 
@@ -206,6 +224,12 @@ namespace ElastiCacheCluster
         {
             if (this.NodeVersion != null)
             {
+                return this.NodeVersion;
+            }
+
+            if (!string.IsNullOrEmpty(this.Node.ToString()) && this.Node.ToString().Equals("TestingAWSInternal"))
+            {
+                this.NodeVersion = new Version("1.4.14");
                 return this.NodeVersion;
             }
 
@@ -260,15 +284,22 @@ namespace ElastiCacheCluster
                 throw new TimeoutException(String.Format("Could not resolve hostname to Ip after trying the specified amount: {0}. " + message, this.tries > 20 ? this.tries : 20));
             }
 
-            this.EndPoint = new IPEndPoint(entry.AddressList[0], port);
-            try
+            lock (endpointLock)
             {
-                this.Node.Dispose();
+                this.EndPoint = new IPEndPoint(entry.AddressList[0], port);
             }
-            catch { }
-            this.Node = new MemcachedNode(this.EndPoint, this.config.SocketPool);
-            this.nodes.Clear();
-            this.nodes.Add(this.Node);
+
+            lock (nodesLock)
+            {
+                try
+                {
+                    this.Node.Dispose();
+                }
+                catch { }
+                this.Node = this.config.nodeFactory.CreateNode(this.EndPoint, this.config.SocketPool);
+                this.nodes.Clear();
+                this.nodes.Add(this.Node);
+            }
             return this.EndPoint;
         }
 
@@ -277,7 +308,8 @@ namespace ElastiCacheCluster
         /// </summary>
         public void Dispose()
         {
-            this.poller.StopPolling();
+            if (this.poller != null)
+                this.poller.StopPolling();
         }
     }
 }

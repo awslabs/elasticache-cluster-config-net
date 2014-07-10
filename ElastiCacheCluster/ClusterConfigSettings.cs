@@ -5,6 +5,7 @@ using System.Text;
 using System.Configuration;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
+using ElastiCacheCluster.Factories;
 
 namespace ElastiCacheCluster
 {
@@ -13,6 +14,8 @@ namespace ElastiCacheCluster
     /// </summary>
     public class ClusterConfigSettings : ConfigurationSection
     {
+        public IConfigNodeFactory NodeFactory { get; set; }
+
         /// <summary>
         /// For config manager
         /// </summary>
@@ -134,17 +137,7 @@ namespace ElastiCacheCluster
         public class PollerSettings : ConfigurationElement
         {
             /// <summary>
-            /// The delay before the poller begins
-            /// </summary>
-            [ConfigurationProperty("initialDelay", DefaultValue = -1, IsRequired = false)]
-            public int InitialDelay
-            {
-                get { return (int)base["initialDelay"]; }
-                set { base["initialDelay"] = value; }
-            }
-
-            /// <summary>
-            /// The delay between polls
+            /// The delay between polls in miliseconds
             /// </summary>
             [ConfigurationProperty("intervalDelay", DefaultValue = -1, IsRequired = false)]
             public int IntervalDelay

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElastiCacheCluster", "Elast
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterClientAppTester", "ClusterClientAppTester\ClusterClientAppTester.csproj", "{085886E5-3D56-4E41-941A-611EDD2A31D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalSimulationTests", "LocalSimulationTests\LocalSimulationTests.csproj", "{4348C13C-0E60-47C2-B86E-8D1FBB4060D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{085886E5-3D56-4E41-941A-611EDD2A31D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{085886E5-3D56-4E41-941A-611EDD2A31D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{085886E5-3D56-4E41-941A-611EDD2A31D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4348C13C-0E60-47C2-B86E-8D1FBB4060D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4348C13C-0E60-47C2-B86E-8D1FBB4060D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4348C13C-0E60-47C2-B86E-8D1FBB4060D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4348C13C-0E60-47C2-B86E-8D1FBB4060D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

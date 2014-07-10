@@ -10,12 +10,12 @@ using Enyim.Caching.Memcached.Results.Extensions;
 using Enyim.Caching.Memcached;
 using ElastiCacheCluster.Helpers;
 
-namespace ElastiCacheCluster
+namespace ElastiCacheCluster.Operations
 {
     /// <summary>
     /// Used to get auto discovery information from ElastiCache endpoints
     /// </summary>
-    internal class ConfigGetOperation : SingleItemOperation, IGetOperation
+    internal class ConfigGetOperation : SingleItemOperation, IGetOperation, IConfigOperation
     {
         private CacheItem result;
 
@@ -61,6 +61,7 @@ namespace ElastiCacheCluster
             socket.Read(eod, 0, 2); // data is terminated by \r\n
 
             this.result = new CacheItem(flags, new ArraySegment<byte>(allNodes, 0, length));
+            this.ConfigResult = this.result;
 
             string response = TextSocketHelper.ReadResponse(socket);
 
@@ -83,5 +84,7 @@ namespace ElastiCacheCluster
         {
             get { return result; }
         }
+
+        public CacheItem ConfigResult { get; set; }
     }
 }

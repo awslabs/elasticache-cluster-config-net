@@ -55,9 +55,12 @@
   <ItemGroup>
     <Compile Include="ClusterConfigSettings.cs" />
     <Compile Include="ClusterClient.cs" />
+    <Compile Include="Factories\DefaultConfigNodeFactory.cs" />
+    <Compile Include="Factories\IConfigNodeFactory.cs" />
     <Compile Include="Operations\GetHelper.cs" />
     <Compile Include="Operations\GetOperation.cs" />
     <Compile Include="Helpers\AddrUtil.cs" />
+    <Compile Include="Operations\IConfigOperation.cs" />
     <Compile Include="Pools\AutoBinaryPool.cs" />
     <Compile Include="ElastiCacheClusterConfig.cs" />
     <Compile Include="Pools\AutoServerPool.cs" />

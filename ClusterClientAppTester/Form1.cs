@@ -5,11 +5,11 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Enyim.Caching;
 using ElastiCacheCluster;
+using Enyim.Caching.Memcached;
 
 namespace ClusterClientAppTester
 {
@@ -52,7 +52,7 @@ namespace ClusterClientAppTester
                 else
                 {
                     this.ButtonAdd.Enabled = true;
-                    this.ButtonGet.Enabled = false;
+                    this.ButtonGet.Enabled = true;
                     this.LabelStatus.Text = "Instantiation Success";
                     this.ProgressBarStatus.Value = 25;
                 }
@@ -61,7 +61,7 @@ namespace ClusterClientAppTester
             }
             catch (Exception ex)
             {
-                this.LabelStatus.Text = ex.Message + " " + ex.InnerException.Message;
+                this.LabelStatus.Text = ex.Message;
             }
         }
 
@@ -89,7 +89,7 @@ namespace ClusterClientAppTester
                 else
                 {
                     this.ButtonAdd.Enabled = true;
-                    this.ButtonGet.Enabled = false;
+                    this.ButtonGet.Enabled = true;
                     this.LabelStatus.Text = "Old Instantiation Success";
                     this.ProgressBarStatus.Value = 25;
                 }
@@ -109,12 +109,11 @@ namespace ClusterClientAppTester
                 this.LabelStatus.Text = "Storing";
 
                 // Stores the same as an Enyim client, just that the nodes are already set through the config object
-                if (mem.Store(Enyim.Caching.Memcached.StoreMode.Set, this.TextKey.Text, this.TextValue.Text))
+                if (mem.Store(StoreMode.Set, this.TextKey.Text, this.TextValue.Text))
                 {
                     #region UI Stuff
 
                     this.TextGetKey.Text = this.TextKey.Text;
-                    this.ButtonGet.Enabled = true;
                     this.LabelStatus.Text = "Storing Success";
                     if (this.ProgressBarStatus.Value < 50)
                     {

@@ -6,7 +6,7 @@ using ElastiCacheCluster.Helpers;
 
 namespace ElastiCacheCluster.Operations
 {
-	internal class GetOperation : SingleItemOperation, IGetOperation
+	internal class GetOperation : SingleItemOperation, IGetOperation, IConfigOperation
 	{
 		private CacheItem result;
 
@@ -27,6 +27,8 @@ namespace ElastiCacheCluster.Operations
 			if (r == null) return result.Fail("Failed to read response");
 
 			this.result = r.Item;
+            this.ConfigResult = r.Item;
+
 			this.Cas = r.CasValue;
 
 			GetHelper.FinishCurrent(socket);
@@ -43,5 +45,7 @@ namespace ElastiCacheCluster.Operations
 		{
 			throw new System.NotSupportedException();
 		}
-	}
+
+        public CacheItem ConfigResult { get; set; }
+    }
 }

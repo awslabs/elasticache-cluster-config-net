@@ -7,8 +7,8 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <iconUrl>http://media.amazonwebservices.com/aws_singlebox_01.png</iconUrl>
-    <licenseUrl>http://aws.amazon.com/asl/</licenseUrl>
-    <projectUrl>http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/AutoDiscovery.html</projectUrl>
+    <licenseUrl>http://aws.amazon.com/apache2.0/</licenseUrl>
+    <projectUrl>https://github.com/awslabs/elasticache-cluster-config-net</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>Copyright 2014</copyright>
