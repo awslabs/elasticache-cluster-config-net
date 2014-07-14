@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.Timers;
 
 namespace ElastiCacheCluster
 {
@@ -21,9 +21,10 @@ namespace ElastiCacheCluster
         #endregion
 
         private Timer timer;
-        private TimerCallback callback;
         private int intervalDelay;
         private ElastiCacheClusterConfig config;
+
+        #region Constructors
 
         /// <summary>
         /// Creates a poller for Auto Discovery with the default intervals
@@ -39,34 +40,37 @@ namespace ElastiCacheCluster
         /// <param name="intervalDelay">The amount of time between polling operations in miliseconds</param>
         public ConfigurationPoller(ElastiCacheClusterConfig config, int intervalDelay)
         {
-            this.callback = this.poll;
-            this.intervalDelay = intervalDelay;
+            this.intervalDelay = intervalDelay < 0 ? DEFAULT_INTERVAL_DELAY : intervalDelay;
             this.config = config;
+
+            this.timer = new Timer(this.intervalDelay);
+            this.timer.Elapsed += this.pollOnTimedEvent;
         }
+
+        #endregion
+
+        #region Polling Methods
 
         internal void StartTimer() {
             log.Debug("Starting timer");
-            this.timer = new Timer(this.callback, this.config, 0, this.intervalDelay);
-            while (!this.config.DiscoveryNode.PollerStarted) ;
+            this.pollOnTimedEvent(null, null);
+            this.timer.Start();
         }
 
         /// <summary>
         /// Used by the poller's timer to update the cluster configuration if a new version is available
         /// </summary>
-        internal void poll(Object configObject)
+        internal void pollOnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            ElastiCacheClusterConfig config = (ElastiCacheClusterConfig)configObject;
-            log.Debug("Polling...");
-            
+            log.Debug("Polling...");            
             try
             {
                 var oldVersion = config.DiscoveryNode.ClusterVersion;
                 var endPoints = config.DiscoveryNode.GetEndPointList();
                 if (oldVersion != config.DiscoveryNode.ClusterVersion)
                 {
-                    config.Pool.UpdateLocator(endPoints);
+                    this.config.Pool.UpdateLocator(endPoints);
                 }
-                config.DiscoveryNode.PollerStarted = true;
             }
             catch
             {
@@ -78,16 +82,17 @@ namespace ElastiCacheCluster
                     var endPoints = config.DiscoveryNode.GetEndPointList();
                     if (oldVersion != config.DiscoveryNode.ClusterVersion)
                     {
-                        config.Pool.UpdateLocator(endPoints);
+                        this.config.Pool.UpdateLocator(endPoints);
                     }
-                    config.DiscoveryNode.PollerStarted = true;
                 }
                 catch (Exception ex)
                 {
-                    throw new ThreadInterruptedException("Could not retrieve cluster configuration after updating endpoint. " + ex.Message);
+                    throw new TimeoutException("Could not retrieve cluster configuration after updating endpoint. " + ex.Message);
                 }
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Disposes the background thread that is used for polling the configs
@@ -95,7 +100,8 @@ namespace ElastiCacheCluster
         public void StopPolling()
         {
             log.Debug("Destroying poller thread");
-            this.timer.Dispose();
+            if (this.timer != null)
+                this.timer.Dispose();
         }
     }
 }

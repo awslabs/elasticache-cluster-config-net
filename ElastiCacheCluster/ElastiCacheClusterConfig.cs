@@ -16,8 +16,6 @@ namespace ElastiCacheCluster
     /// </summary>
     public class ElastiCacheClusterConfig : IMemcachedClientConfiguration
     {
-        internal static readonly ClusterConfigSettings DefaultSettings = ConfigurationManager.GetSection("clusterclient") as ClusterConfigSettings;
-
         // these are lazy initialized in the getters
         private Type nodeLocator;
         private ITranscoder transcoder;
@@ -26,6 +24,8 @@ namespace ElastiCacheCluster
         internal ClusterConfigSettings setup;
         internal AutoServerPool Pool;
         internal IConfigNodeFactory nodeFactory;
+
+        #region Constructors
 
         /// <summary>
         /// The node used to check the cluster's configuration
@@ -36,7 +36,7 @@ namespace ElastiCacheCluster
         /// Initializes a MemcahcedClient config with auto discovery enabled from the app.config clusterclient section
         /// </summary>
         public ElastiCacheClusterConfig()
-            : this(DefaultSettings) { }
+            : this(null as ClusterConfigSettings) { }
 
         /// <summary>
         /// Initializes a MemcahcedClient config with auto discovery enabled from the app.config with the specified section
@@ -59,6 +59,19 @@ namespace ElastiCacheCluster
         /// <param name="setup">The setup to get conifg settings from</param>
         public ElastiCacheClusterConfig(ClusterConfigSettings setup)
         {
+            if (setup == null)
+            {
+                try
+                {
+                    setup = ConfigurationManager.GetSection("clusterclient") as ClusterConfigSettings;
+                }
+                catch (Exception ex)
+                {
+                    throw new ConfigurationErrorsException("Could not instantiate from app.config\n" + ex.Message);
+                }
+            }
+            if (setup.ClusterEndPoint == null)
+                throw new ArgumentException("Cluster Settings are null");
             if (String.IsNullOrEmpty(setup.ClusterEndPoint.HostName))
                 throw new ArgumentNullException("hostname");
             if (setup.ClusterEndPoint.Port <= 0)
@@ -68,13 +81,18 @@ namespace ElastiCacheCluster
             this.Servers = new List<IPEndPoint>();
 
             this.Protocol = setup.Protocol;
-            this.KeyTransformer = setup.KeyTransformer.CreateInstance() ?? new DefaultKeyTransformer();
+
+            if (setup.KeyTransformer == null)
+                this.KeyTransformer = new DefaultKeyTransformer();
+            else
+                this.KeyTransformer = setup.KeyTransformer.CreateInstance() ?? new DefaultKeyTransformer();
+
             this.SocketPool = (ISocketPoolConfiguration)setup.SocketPool ?? new SocketPoolConfiguration();
             this.Authentication = (IAuthenticationConfiguration)setup.Authentication ?? new AuthenticationConfiguration();
 
             this.nodeFactory = setup.NodeFactory ?? new DefaultConfigNodeFactory();
 
-            if (setup.ClusterEndPoint.HostName.Contains(".cfg."))
+            if (setup.ClusterEndPoint.HostName.IndexOf(".cfg", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 if (setup.ClusterNode.NodeTries < 0 || setup.ClusterNode.NodeDelay < 0)
                     this.DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port);
@@ -86,6 +104,8 @@ namespace ElastiCacheCluster
                 throw new ArgumentException("The provided endpoint does not support auto discovery");
             }
         }
+
+        #endregion
 
         #region Members
 

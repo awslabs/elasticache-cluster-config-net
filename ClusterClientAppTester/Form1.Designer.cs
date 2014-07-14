@@ -99,7 +99,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(184, 29);
+            this.label2.Location = new System.Drawing.Point(199, 29);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(74, 13);
             this.label2.TabIndex = 4;
@@ -107,7 +107,7 @@
             // 
             // TextPort
             // 
-            this.TextPort.Location = new System.Drawing.Point(184, 48);
+            this.TextPort.Location = new System.Drawing.Point(202, 48);
             this.TextPort.Name = "TextPort";
             this.TextPort.Size = new System.Drawing.Size(41, 20);
             this.TextPort.TabIndex = 3;
@@ -343,7 +343,10 @@
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Form1";
+            this.ShowIcon = false;
             this.Text = "Cluster Client Tests";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

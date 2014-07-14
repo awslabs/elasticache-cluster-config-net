@@ -13,7 +13,7 @@ using ElastiCacheCluster.Helpers;
 namespace ElastiCacheCluster.Operations
 {
     /// <summary>
-    /// Used to get auto discovery information from ElastiCache endpoints
+    /// Used to get auto discovery information from ElastiCache endpoints version 1.4.14 or higher
     /// </summary>
     internal class ConfigGetOperation : SingleItemOperation, IGetOperation, IConfigOperation
     {
@@ -78,7 +78,7 @@ namespace ElastiCacheCluster.Operations
         }
 
         /// <summary>
-        /// The CacheItem result of a "get config *key*" request
+        /// The CacheItem result of a "config get *key*" request
         /// </summary>
         public CacheItem Result
         {

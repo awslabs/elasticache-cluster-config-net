@@ -20,10 +20,13 @@ namespace ElastiCacheCluster
     /// </summary>
     public class DiscoveryNode
     {
-        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(DiscoveryNode));
-        
+        #region Static ReadOnlys
+
+        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(DiscoveryNode));        
         private static readonly int DEFAULT_TRY_COUNT = 5;
         private static readonly int DEFAULT_TRY_DELAY = 1000;
+
+        #endregion
 
         /// <summary>
         /// The version of memcached running on the Nodes
@@ -40,8 +43,7 @@ namespace ElastiCacheCluster
         /// </summary>
         public int NodesInCluster { get { return this.nodes.Count; } }
 
-
-        public bool PollerStarted { get; internal set; }
+        #region Private Fields
 
         private IPEndPoint EndPoint;
 
@@ -60,6 +62,10 @@ namespace ElastiCacheCluster
         private int delay;
 
         private Object nodesLock, endpointLock, clusterLock;
+
+        #endregion
+
+        #region Constructors
 
         /// <summary>
         /// The node used to discover endpoints in an ElastiCache cluster
@@ -81,7 +87,26 @@ namespace ElastiCacheCluster
         /// <param name="tries">The number of tries for requesting config info</param>
         /// <param name="delay">The time, in miliseconds, to wait between tries</param>
         internal DiscoveryNode(ElastiCacheClusterConfig config, string hostname, int port, int tries, int delay)
-        {            
+        {
+            #region Param Checks
+
+            if (config == null)
+                throw new ArgumentNullException("config");
+            if (string.IsNullOrEmpty(hostname))
+                throw new ArgumentNullException("hostname");
+            if (port <= 0)
+                throw new ArgumentException("Port cannot be 0 or less");
+            if (tries < 1)
+                throw new ArgumentException("Must atleast try once");
+            if (delay < 0)
+                throw new ArgumentException("The delay can't be negative");
+            if (hostname.IndexOf(".cfg", StringComparison.OrdinalIgnoreCase) < 0)
+                throw new ArgumentException("The hostname is not able to use Auto Discovery");
+
+            #endregion
+
+            #region Setting Members
+
             this.hostname = hostname;
             this.port = port;
             this.config = config;
@@ -89,15 +114,19 @@ namespace ElastiCacheCluster
             this.tries = tries;
             this.delay = delay;
 
-            this.PollerStarted = false;
-
             this.clusterLock = new Object();
             this.endpointLock = new Object();
             this.nodesLock = new Object();
 
+            #endregion
+
             this.ResolveEndPoint();
             this.GetNodeVersion();
         }
+
+        #endregion
+
+        #region Poller Methods
 
         /// <summary>
         /// Used to start a poller that checks for changes in the cluster client configuration
@@ -118,6 +147,10 @@ namespace ElastiCacheCluster
             this.poller = new ConfigurationPoller(this.config, intervalDelay);
             this.poller.StartTimer();
         }
+
+        #endregion
+
+        #region Config Info
 
         /// <summary>
         /// Parses the string NodeConfig into a list of IPEndPoints for configuration
@@ -308,6 +341,8 @@ namespace ElastiCacheCluster
             }
             return this.EndPoint;
         }
+
+        #endregion
 
         /// <summary>
         /// Stops the current poller

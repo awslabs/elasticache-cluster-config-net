@@ -14,7 +14,12 @@ namespace ElastiCacheCluster
     /// </summary>
     public class ClusterConfigSettings : ConfigurationSection
     {
+        /// <summary>
+        /// An object that produces nodes for the Discovery Node, mainly used for testing
+        /// </summary>
         public IConfigNodeFactory NodeFactory { get; set; }
+
+        #region Constructors
 
         /// <summary>
         /// For config manager
@@ -36,6 +41,10 @@ namespace ElastiCacheCluster
             this.ClusterEndPoint.HostName = hostname;
             this.ClusterEndPoint.Port = port;
         }
+
+        #endregion
+
+        #region Config Settings
 
         /// <summary>
         /// Class containing information about the cluster host and port
@@ -146,6 +155,8 @@ namespace ElastiCacheCluster
                 set { base["intervalDelay"] = value; }
             }
         }
+
+        #endregion
 
         #region MemcachedConfig
 

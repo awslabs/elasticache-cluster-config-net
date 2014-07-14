@@ -4,8 +4,7 @@ Amazon ElastiCache Cluster Configuration is an enhanced .NET library that suppor
 
 ## Usage
 
-To use Amazon ElastiCache with Auto Discovery, the MemcachedClient must be passed the ElastiCacheClusterConfig object which automatically updates the internal server pool.
-An ElastiCacheClusterConfig can be created from the App.config if there is a clusterclient section or you can pass a different section.
+To use Amazon ElastiCache with Auto Discovery, the ElastiCacheClusterConfig object must be passed to the MemcachedClient object. An ElastiCacheClusterConfig can be created from the App.config if there is a clusterclient section or you can pass a different section.
 	
 	var client = new MemcachedClient(new ElastiCacheClusterConfig());
 
@@ -16,7 +15,7 @@ ElastiCacheClusterConfig can also be instantiated by providing it an AutoConfigS
 Once instantiation occurs in this way, MemcachedClient can be used the same way as the [Enyim Client](https://github.com/enyim/EnyimMemcached). The only difference is a background process polls the cluster and updates nodes when changes occur.
 
 ## App.config
-To configure the AutoClient from app.config the section clusterclient, or the specified section in the constructor, must have an endpoint that contains a hostname and port specified as so:
+To configure the AutoClient from app.config the section "clusterclient" or the specified section must have an endpoint that contains a hostname and port specified as so:
 
     <endpoint hostname="clusterclient.4mpstz.cfg.use1.cache.amazonaws.com" port="11211" />
 
@@ -32,4 +31,4 @@ Because this binary is used as a configuration object for the Enyim MemcachedCli
 
 ## Requirements
 
-You'll need .NET Framework 3.5 or later to use the precompiled binaries. To build the client, you'll need Visual Studio 2010 with strong validation [turned off](https://github.com/enyim/EnyimMemcached/wiki/Release-builds#signing).
+You'll need .NET Framework 3.5 or later to use the precompiled binaries. To build the client, you'll need Visual Studio 2010 or higher.
