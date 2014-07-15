@@ -7,8 +7,8 @@
     <ProjectGuid>{1255EBD3-0340-4AF6-A5F2-3D97D8709546}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ElastiCacheCluster</RootNamespace>
-    <AssemblyName>ElastiCacheCluster</AssemblyName>
+    <RootNamespace>Amazon.ElastiCacheCluster</RootNamespace>
+    <AssemblyName>Amazon.ElastiCacheCluster</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

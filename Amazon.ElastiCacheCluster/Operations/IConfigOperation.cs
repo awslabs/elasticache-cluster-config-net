@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Enyim.Caching.Memcached;
 
-namespace ElastiCacheCluster.Operations
+namespace Amazon.ElastiCacheCluster.Operations
 {
     public interface IConfigOperation
     {

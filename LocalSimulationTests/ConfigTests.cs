@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ElastiCacheCluster;
+using Amazon.ElastiCacheCluster;
 using Enyim.Caching;
 
 namespace LocalSimulationTests

@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using Enyim.Caching;
-using ElastiCacheCluster;
+using Amazon.ElastiCacheCluster;
 using Enyim.Caching.Memcached;
 
 namespace ClusterClientAppTester

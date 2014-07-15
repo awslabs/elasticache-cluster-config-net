@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace ElastiCacheCluster.Factories
+namespace Amazon.ElastiCacheCluster.Factories
 {
     internal class DefaultConfigNodeFactory : IConfigNodeFactory
     {

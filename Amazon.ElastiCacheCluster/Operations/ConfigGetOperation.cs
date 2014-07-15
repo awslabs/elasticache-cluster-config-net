@@ -8,9 +8,9 @@ using System.Text;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Results.Extensions;
 using Enyim.Caching.Memcached;
-using ElastiCacheCluster.Helpers;
+using Amazon.ElastiCacheCluster.Helpers;
 
-namespace ElastiCacheCluster.Operations
+namespace Amazon.ElastiCacheCluster.Operations
 {
     /// <summary>
     /// Used to get auto discovery information from ElastiCache endpoints version 1.4.14 or higher

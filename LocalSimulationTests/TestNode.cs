@@ -5,7 +5,7 @@ using System.Text;
 using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol;
 using System.Net;
-using ElastiCacheCluster.Operations;
+using Amazon.ElastiCacheCluster.Operations;
 using Enyim.Caching.Memcached.Results;
 
 namespace LocalSimulationTests

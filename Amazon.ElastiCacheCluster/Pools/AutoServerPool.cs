@@ -7,7 +7,7 @@ using System.Threading;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
 
-namespace ElastiCacheCluster.Pools
+namespace Amazon.ElastiCacheCluster.Pools
 {
     /// <summary>
     /// A server pool just like the default that enables safely changing the servers of the locator

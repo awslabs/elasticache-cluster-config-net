@@ -7,16 +7,16 @@ using System.Net;
 using System.Configuration;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
-using ElastiCacheCluster.Helpers;
-using ElastiCacheCluster.Operations;
-using ElastiCacheCluster.Pools;
+using Amazon.ElastiCacheCluster.Helpers;
+using Amazon.ElastiCacheCluster.Operations;
+using Amazon.ElastiCacheCluster.Pools;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Protocol;
 
-namespace ElastiCacheCluster
+namespace Amazon.ElastiCacheCluster
 {
     /// <summary>
-    /// A class that manages the discover of endpoints inside of an ElastiCache cluster
+    /// A class that manages the discovery of endpoints inside of an ElastiCache cluster
     /// </summary>
     public class DiscoveryNode
     {
@@ -296,7 +296,7 @@ namespace ElastiCacheCluster
         {
             IPHostEntry entry = null;
             var waiting = true;
-            var tryCount = this.tries > 20 ? this.tries : 20;
+            var tryCount = this.tries;
             string message = "";
 
             while (tryCount > 0 && waiting)
@@ -320,7 +320,7 @@ namespace ElastiCacheCluster
             if (waiting || entry == null)
             {
                 log.Error("Could not resolve hostname to ip");
-                throw new TimeoutException(String.Format("Could not resolve hostname to Ip after trying the specified amount: {0}. " + message, this.tries > 20 ? this.tries : 20));
+                throw new TimeoutException(String.Format("Could not resolve hostname to Ip after trying the specified amount: {0}. " + message, this.tries));
             }
 
             lock (endpointLock)

@@ -5,11 +5,11 @@ using Enyim.Caching.Memcached;
 using Enyim.Reflection;
 using Enyim.Caching.Memcached.Protocol.Binary;
 using Enyim.Caching.Configuration;
-using ElastiCacheCluster.Pools;
-using ElastiCacheCluster.Factories;
+using Amazon.ElastiCacheCluster.Pools;
+using Amazon.ElastiCacheCluster.Factories;
 using System.Configuration;
 
-namespace ElastiCacheCluster
+namespace Amazon.ElastiCacheCluster
 {
     /// <summary>
     /// Configuration class for auto discovery

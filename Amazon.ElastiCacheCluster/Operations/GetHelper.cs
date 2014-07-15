@@ -1,9 +1,9 @@
 using Enyim.Caching.Memcached;
-using ElastiCacheCluster.Helpers;
+using Amazon.ElastiCacheCluster.Helpers;
 using System;
 using System.Globalization;
 
-namespace ElastiCacheCluster.Operations
+namespace Amazon.ElastiCacheCluster.Operations
 {
 	internal static class GetHelper
 	{
@@ -66,7 +66,7 @@ namespace ElastiCacheCluster.Operations
 	}
 
 	#region [ T:GetResponse                  ]
-	public class GetResponse
+	internal class GetResponse
 	{
 		private GetResponse() { }
 		public GetResponse(string key, ushort flags, ulong casValue, byte[] data) : this(key, flags, casValue, data, 0, data.Length) { }

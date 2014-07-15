@@ -9,7 +9,7 @@ using System.Security;
 using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol.Binary;
 
-namespace ElastiCacheCluster.Pools
+namespace Amazon.ElastiCacheCluster.Pools
 {
     /// <summary>
     /// Server pool implementing the binary protocol.

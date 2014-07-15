@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 
-namespace ElastiCacheCluster
+namespace Amazon.ElastiCacheCluster
 {
     /// <summary>
     /// A poller used to reconfigure the client servers when updates occur to the cluster configuration

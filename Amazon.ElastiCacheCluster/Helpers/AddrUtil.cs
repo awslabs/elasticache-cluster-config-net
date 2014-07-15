@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace ElastiCacheCluster.Helpers
+namespace Amazon.ElastiCacheCluster.Helpers
 {
     /// <summary>
     /// A class used to parse configs of Auto Discovery

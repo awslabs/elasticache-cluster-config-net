@@ -25,11 +25,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ElastiCacheClusterConfig")]
-[assembly: AssemblyDescription("A configuration object to enable auto discovery in Enyim")]
+[assembly: AssemblyTitle("AmazonElastiCacheClusterConfig")]
+[assembly: AssemblyDescription("A configuration object to enable auto discovery in Enyim for ElastiCache")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Amazon.com, Inc")]
-[assembly: AssemblyProduct("ElastiCacheClusterConfig")]
+[assembly: AssemblyProduct("AmazonElastiCacheClusterConfig")]
 [assembly: AssemblyCopyright("Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -84,9 +84,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ElastiCacheCluster\ElastiCacheCluster.csproj">
+    <ProjectReference Include="..\Amazon.ElastiCacheCluster\Amazon.ElastiCacheCluster.csproj">
       <Project>{1255ebd3-0340-4af6-a5f2-3d97d8709546}</Project>
-      <Name>ElastiCacheCluster</Name>
+      <Name>Amazon.ElastiCacheCluster</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

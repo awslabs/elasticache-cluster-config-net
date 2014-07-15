@@ -2,9 +2,9 @@ using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Results.Extensions;
-using ElastiCacheCluster.Helpers;
+using Amazon.ElastiCacheCluster.Helpers;
 
-namespace ElastiCacheCluster.Operations
+namespace Amazon.ElastiCacheCluster.Operations
 {
 	internal class GetOperation : SingleItemOperation, IGetOperation, IConfigOperation
 	{

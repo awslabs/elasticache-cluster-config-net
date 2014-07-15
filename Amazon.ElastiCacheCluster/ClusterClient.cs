@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Enyim.Caching;
 
-namespace ElastiCacheCluster
+namespace Amazon.ElastiCacheCluster
 {
     /// <summary>
     /// Used to instantiate MemcachedClients with auto discovery enabled.

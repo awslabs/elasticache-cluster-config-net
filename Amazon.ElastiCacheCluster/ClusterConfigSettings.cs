@@ -5,12 +5,12 @@ using System.Text;
 using System.Configuration;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
-using ElastiCacheCluster.Factories;
+using Amazon.ElastiCacheCluster.Factories;
 
-namespace ElastiCacheCluster
+namespace Amazon.ElastiCacheCluster
 {
     /// <summary>
-    /// A configsection used to configure the client config
+    /// A config settings object used to configure the client config
     /// </summary>
     public class ClusterConfigSettings : ConfigurationSection
     {
