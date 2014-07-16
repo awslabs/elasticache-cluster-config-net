@@ -15,7 +15,6 @@
  *   /__\ \    / \__ \
  *  (_)(_) \/\/  (___/
  *
- *  AWS SDK for .NET
  *
  */
 using System.Reflection;

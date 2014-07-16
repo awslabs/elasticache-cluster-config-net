@@ -25,12 +25,12 @@ namespace Amazon.ElastiCacheCluster
         internal AutoServerPool Pool;
         internal IConfigNodeFactory nodeFactory;
 
-        #region Constructors
-
         /// <summary>
         /// The node used to check the cluster's configuration
         /// </summary>
         public DiscoveryNode DiscoveryNode { get; private set; }
+
+        #region Constructors
 
         /// <summary>
         /// Initializes a MemcahcedClient config with auto discovery enabled from the app.config clusterclient section
@@ -64,6 +64,10 @@ namespace Amazon.ElastiCacheCluster
                 try
                 {
                     setup = ConfigurationManager.GetSection("clusterclient") as ClusterConfigSettings;
+                    if (setup == null)
+                    {
+                        throw new ConfigurationErrorsException("Could not instantiate from app.config, setup was null");
+                    }
                 }
                 catch (Exception ex)
                 {

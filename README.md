@@ -29,6 +29,9 @@ These settings as well as all the settings included in Enyim can be configured t
 ## Enyim Client
 Because this binary is used as a configuration object for the Enyim MemcachedClient, usage beyond instantiation is all exactly the same so refer to [this wiki](https://github.com/enyim/EnyimMemcached/wiki) or [this google group](https://groups.google.com/forum/#!forum/enyim-memcached) on how to use the actual client.
 
+## Wiki
+The wiki found [here](https://github.com/awslabs/elasticache-cluster-config-net/wiki) goes into more detail on the usage of the ElastiCacheClusterConfig object as well as how the project takes advantage of Auto Discovery.
+
 ## Requirements
 
 You'll need .NET Framework 3.5 or later to use the precompiled binaries. To build the client, you'll need Visual Studio 2010 or higher.
