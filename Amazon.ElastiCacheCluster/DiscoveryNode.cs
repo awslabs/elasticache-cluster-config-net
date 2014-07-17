@@ -22,9 +22,10 @@ namespace Amazon.ElastiCacheCluster
     {
         #region Static ReadOnlys
 
-        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(DiscoveryNode));        
-        private static readonly int DEFAULT_TRY_COUNT = 5;
-        private static readonly int DEFAULT_TRY_DELAY = 1000;
+        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(DiscoveryNode));
+      
+        internal static readonly int DEFAULT_TRY_COUNT = 5;
+        internal static readonly int DEFAULT_TRY_DELAY = 1000;
 
         #endregion
 

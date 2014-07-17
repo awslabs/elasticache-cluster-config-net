@@ -74,6 +74,7 @@ namespace Amazon.ElastiCacheCluster
                     throw new ConfigurationErrorsException("Could not instantiate from app.config\n" + ex.Message);
                 }
             }
+
             if (setup.ClusterEndPoint == null)
                 throw new ArgumentException("Cluster Settings are null");
             if (String.IsNullOrEmpty(setup.ClusterEndPoint.HostName))
@@ -98,10 +99,14 @@ namespace Amazon.ElastiCacheCluster
 
             if (setup.ClusterEndPoint.HostName.IndexOf(".cfg", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                if (setup.ClusterNode.NodeTries < 0 || setup.ClusterNode.NodeDelay < 0)
-                    this.DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port);
+                if (setup.ClusterNode != null)
+                {
+                    var _tries = setup.ClusterNode.NodeTries > 0 ? setup.ClusterNode.NodeTries : DiscoveryNode.DEFAULT_TRY_COUNT;
+                    var _delay = setup.ClusterNode.NodeDelay >= 0 ? setup.ClusterNode.NodeDelay : DiscoveryNode.DEFAULT_TRY_DELAY;
+                    this.DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port, _tries, _delay);
+                }
                 else
-                    this.DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port, setup.ClusterNode.NodeTries, setup.ClusterNode.NodeDelay);
+                    this.DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port);
             }
             else
             {
