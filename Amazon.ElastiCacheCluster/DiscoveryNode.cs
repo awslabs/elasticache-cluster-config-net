@@ -23,7 +23,7 @@ namespace Amazon.ElastiCacheCluster
         #region Static ReadOnlys
 
         private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(DiscoveryNode));
-      
+
         internal static readonly int DEFAULT_TRY_COUNT = 5;
         internal static readonly int DEFAULT_TRY_DELAY = 1000;
 
@@ -49,7 +49,7 @@ namespace Amazon.ElastiCacheCluster
         private IPEndPoint EndPoint;
 
         private IMemcachedNode Node;
-        
+
         private ElastiCacheClusterConfig config;
 
         private List<IMemcachedNode> nodes = new List<IMemcachedNode>();
@@ -192,10 +192,10 @@ namespace Amazon.ElastiCacheCluster
             var nodeVersion = this.GetNodeVersion();
             var older = new Version("1.4.14");
             var waiting = true;
-            string message = "";            
+            string message = "";
             string[] items = null;
 
-            IGetOperation command = nodeVersion.CompareTo(older) < 0 ?                                        
+            IGetOperation command = nodeVersion.CompareTo(older) < 0 ?
                                         command = new GetOperation("AmazonElastiCache:cluster") :
                                         command = new ConfigGetOperation("cluster");
 
@@ -315,7 +315,7 @@ namespace Amazon.ElastiCacheCluster
                 {
                     message = ex.Message;
                     System.Threading.Thread.Sleep(this.delay);
-                } 
+                }
             }
 
             if (waiting || entry == null)

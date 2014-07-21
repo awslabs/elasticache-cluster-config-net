@@ -23,7 +23,7 @@ namespace Amazon.ElastiCacheCluster.Operations
         /// Creates a config get for ElastiCache
         /// </summary>
         /// <param name="key"></param>
-		public ConfigGetOperation(string key) : base(key) { }
+        public ConfigGetOperation(string key) : base(key) { }
 
         protected override IList<ArraySegment<byte>> GetBuffer()
         {

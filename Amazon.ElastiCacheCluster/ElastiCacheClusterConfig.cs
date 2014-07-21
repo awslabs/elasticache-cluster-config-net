@@ -224,16 +224,16 @@ namespace Amazon.ElastiCacheCluster
         {
             switch (this.Protocol)
             {
-                case MemcachedProtocol.Text: 
+                case MemcachedProtocol.Text:
                     this.Pool = new AutoServerPool(this, new Enyim.Caching.Memcached.Protocol.Text.TextOperationFactory());
                     break;
-                case MemcachedProtocol.Binary: 
+                case MemcachedProtocol.Binary:
                     this.Pool = new AutoBinaryPool(this);
                     break;
-                default:                    
+                default:
                     throw new ArgumentOutOfRangeException("Unknown protocol: " + (int)this.Protocol);
             }
-            
+
             return this.Pool;
         }
 

@@ -21,7 +21,7 @@ namespace LocalSimulationTests
             config = new ElastiCacheClusterConfig(settings);
             this.config.DiscoveryNode.Dispose();
         }
-        
+
         [TestMethod]
         public void InitialRequestTest()
         {
@@ -29,7 +29,7 @@ namespace LocalSimulationTests
             ClusterConfigSettings settings = new ClusterConfigSettings("www.cfg.org", 11211);
             settings.NodeFactory = new NodeFactory();
             config = new ElastiCacheClusterConfig(settings);
-            
+
             client = new MemcachedClient(config);
 
             Assert.AreEqual(new Version("1.4.14"), config.DiscoveryNode.NodeVersion);
@@ -50,7 +50,7 @@ namespace LocalSimulationTests
             config = new ElastiCacheClusterConfig(settings);
 
             client = new MemcachedClient(config);
-            
+
             // Buffer time to wait, this can fail occasionally because delays can occur in the poller or timer
             System.Threading.Thread.Sleep(3000);
             Assert.AreEqual(3, config.DiscoveryNode.ClusterVersion);

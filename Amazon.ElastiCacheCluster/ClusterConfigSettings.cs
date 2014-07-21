@@ -74,7 +74,7 @@ namespace Amazon.ElastiCacheCluster
         {
             get { return (PollerSettings)base["poller"]; }
             set { base["poller"] = value; }
-        } 
+        }
 
         /// <summary>
         /// Endpoint that contains the hostname and port for auto discovery

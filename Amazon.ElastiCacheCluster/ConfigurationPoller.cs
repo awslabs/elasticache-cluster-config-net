@@ -17,7 +17,7 @@ namespace Amazon.ElastiCacheCluster
 
         // Poll once every minute
         private static readonly int DEFAULT_INTERVAL_DELAY = 60000;
-        
+
         #endregion
 
         private Timer timer;
@@ -32,7 +32,7 @@ namespace Amazon.ElastiCacheCluster
         /// <param name="client">The memcached client to update servers for</param>
         public ConfigurationPoller(ElastiCacheClusterConfig config)
             : this(config, DEFAULT_INTERVAL_DELAY) { }
-                
+
         /// <summary>
         /// Creates a poller for Auto Discovery with the defined itnerval, delay, tries, and try delay for polling
         /// </summary>
@@ -51,7 +51,8 @@ namespace Amazon.ElastiCacheCluster
 
         #region Polling Methods
 
-        internal void StartTimer() {
+        internal void StartTimer()
+        {
             log.Debug("Starting timer");
             this.pollOnTimedEvent(null, null);
             this.timer.Start();
@@ -62,7 +63,7 @@ namespace Amazon.ElastiCacheCluster
         /// </summary>
         internal void pollOnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            log.Debug("Polling...");            
+            log.Debug("Polling...");
             try
             {
                 var oldVersion = config.DiscoveryNode.ClusterVersion;

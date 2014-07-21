@@ -6,45 +6,45 @@ using Amazon.ElastiCacheCluster.Helpers;
 
 namespace Amazon.ElastiCacheCluster.Operations
 {
-	internal class GetOperation : SingleItemOperation, IGetOperation, IConfigOperation
-	{
-		private CacheItem result;
+    internal class GetOperation : SingleItemOperation, IGetOperation, IConfigOperation
+    {
+        private CacheItem result;
 
-		internal GetOperation(string key) : base(key) { }
+        internal GetOperation(string key) : base(key) { }
 
-		protected override System.Collections.Generic.IList<System.ArraySegment<byte>> GetBuffer()
-		{
-			var command = "gets " + this.Key + TextSocketHelper.CommandTerminator;
+        protected override System.Collections.Generic.IList<System.ArraySegment<byte>> GetBuffer()
+        {
+            var command = "gets " + this.Key + TextSocketHelper.CommandTerminator;
 
-			return TextSocketHelper.GetCommandBuffer(command);
-		}
+            return TextSocketHelper.GetCommandBuffer(command);
+        }
 
-		protected override IOperationResult ReadResponse(PooledSocket socket)
-		{
-			GetResponse r = GetHelper.ReadItem(socket);
-			var result = new TextOperationResult();
+        protected override IOperationResult ReadResponse(PooledSocket socket)
+        {
+            GetResponse r = GetHelper.ReadItem(socket);
+            var result = new TextOperationResult();
 
-			if (r == null) return result.Fail("Failed to read response");
+            if (r == null) return result.Fail("Failed to read response");
 
-			this.result = r.Item;
+            this.result = r.Item;
             this.ConfigResult = r.Item;
 
-			this.Cas = r.CasValue;
+            this.Cas = r.CasValue;
 
-			GetHelper.FinishCurrent(socket);
+            GetHelper.FinishCurrent(socket);
 
-			return result.Pass();
-		}
+            return result.Pass();
+        }
 
-		CacheItem IGetOperation.Result
-		{
-			get { return this.result; }
-		}
+        CacheItem IGetOperation.Result
+        {
+            get { return this.result; }
+        }
 
-		protected override bool ReadResponseAsync(PooledSocket socket, System.Action<bool> next)
-		{
-			throw new System.NotSupportedException();
-		}
+        protected override bool ReadResponseAsync(PooledSocket socket, System.Action<bool> next)
+        {
+            throw new System.NotSupportedException();
+        }
 
         public CacheItem ConfigResult { get; set; }
     }
