@@ -1,11 +1,11 @@
 # Amazon ElastiCache Cluster Configuration for .NET
 
-Amazon ElastiCache Cluster Configuration is an enhanced .NET library that supports connecting to an ElastiCache cluster for Auto Discovery. This client library is an extension built upon Enyim and is released under the [Apache 2.0 License](http://aws.amazon.com/apache2.0/).
+Amazon ElastiCache Cluster Configuration is an enhanced .NET library that supports connecting to an Amazon ElastiCache cluster for Auto Discovery. This client library is an extension built upon Enyim and is released under the [Apache 2.0 License](http://aws.amazon.com/apache2.0/).
 
 ## Usage
 
 To use Amazon ElastiCache with Auto Discovery, the ElastiCacheClusterConfig object must be passed to the MemcachedClient object. An ElastiCacheClusterConfig can be created from the App.config if there is a clusterclient section or you can pass a different section.
-	
+
 	var client = new MemcachedClient(new ElastiCacheClusterConfig());
 
 ElastiCacheClusterConfig can also be instantiated by providing it an AutoConfigSetup or simply provide the hostname and port like so:
