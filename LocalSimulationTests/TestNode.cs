@@ -27,7 +27,7 @@ namespace LocalSimulationTests
     public class TestNode : IMemcachedNode
     {
         private IPEndPoint end;
-        public IPEndPoint EndPoint { get { return end; } }
+        public IPEndPoint EndPoint { get { return end; } set { this.end = value; } }
 
         private int requestNum = 1;
 
