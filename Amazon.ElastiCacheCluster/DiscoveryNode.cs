@@ -136,7 +136,6 @@ namespace Amazon.ElastiCacheCluster
             #endregion
 
             this.ResolveEndPoint();
-            this.GetNodeVersion();
         }
 
         #endregion
@@ -191,7 +190,11 @@ namespace Amazon.ElastiCacheCluster
             }
             catch (Exception ex)
             {
-                throw ex;
+                // Error getting the list of endpoints. Most likely this is due to the
+                // client being used outside of EC2. Returning an empty list so that
+                // client will be a noop in a development environment.
+                log.Debug("Error getting endpoints list", ex);
+                return new List<IPEndPoint>();
             }
         }
 
@@ -291,7 +294,7 @@ namespace Amazon.ElastiCacheCluster
             var statresult = this.Node.Execute(statcommand);
 
             string version;
-            if (statcommand.Result.TryGetValue("version", out version))
+            if (statcommand.Result != null && statcommand.Result.TryGetValue("version", out version))
             {
                 this.NodeVersion = new Version(version);
                 return this.NodeVersion;
@@ -345,11 +348,14 @@ namespace Amazon.ElastiCacheCluster
 
             lock (nodesLock)
             {
-                try
+                if (this.Node != null)
                 {
-                    this.Node.Dispose();
+                    try
+                    {
+                        this.Node.Dispose();
+                    }
+                    catch { }
                 }
-                catch { }
                 this.Node = this.config.nodeFactory.CreateNode(this.EndPoint, this.config.SocketPool);
                 this.nodes.Clear();
                 this.nodes.Add(this.Node);
