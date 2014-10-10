@@ -75,7 +75,7 @@ namespace Amazon.ElastiCacheCluster
         /// <summary>
         /// Used by the poller's timer to update the cluster configuration if a new version is available
         /// </summary>
-        internal void pollOnTimedEvent(Object source, ElapsedEventArgs e)
+        internal void pollOnTimedEvent(Object source, ElapsedEventArgs evnt)
         {
             log.Debug("Polling...");
             try
@@ -84,25 +84,35 @@ namespace Amazon.ElastiCacheCluster
                 var endPoints = config.DiscoveryNode.GetEndPointList();
                 if (oldVersion != config.DiscoveryNode.ClusterVersion)
                 {
+                    log.DebugFormat("Updating endpoints to have {0} nodes", endPoints.Count);
                     this.config.Pool.UpdateLocator(endPoints);
                 }
             }
-            catch
+            catch(Exception e)
             {
                 try
                 {
+                    log.Debug("Error updating endpoints, going to attempt to reresolve configuration endpoint.", e);
                     config.DiscoveryNode.ResolveEndPoint();
 
                     var oldVersion = config.DiscoveryNode.ClusterVersion;
                     var endPoints = config.DiscoveryNode.GetEndPointList();
                     if (oldVersion != config.DiscoveryNode.ClusterVersion)
                     {
+                        log.DebugFormat("Updating endpoints to have {0} nodes", endPoints.Count);
                         this.config.Pool.UpdateLocator(endPoints);
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw new TimeoutException("Could not retrieve cluster configuration after updating endpoint. " + ex.Message);
+                    log.Debug("Error updating endpoints. Setting endpoints to empty collection of nodes.", ex);
+
+                    /* 
+                     * We were not able to retrieve the current node configuration. This is most likely because the application
+                     * is running in development outside of EC2. ElastiCache clusters are only accessible from an EC2 instance
+                     * with the right security permissions.
+                     */
+                    this.config.Pool.UpdateLocator(new List<System.Net.IPEndPoint>());
                 }
             }
         }

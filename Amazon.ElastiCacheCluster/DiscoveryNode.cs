@@ -85,20 +85,18 @@ namespace Amazon.ElastiCacheCluster
         /// <summary>
         /// The node used to discover endpoints in an ElastiCache cluster
         /// </summary>
-        /// <param name="client">The client discovery node is contained within</param>
+        /// <param name="config">The config of the client to access the SocketPool</param>
         /// <param name="hostname">The host name of the cluster with .cfg. in name</param>
         /// <param name="port">The port of the cluster</param>
-        /// <param name="config">The config of the client to access the SocketPool</param>
         internal DiscoveryNode(ElastiCacheClusterConfig config, string hostname, int port)
             : this(config, hostname, port, DEFAULT_TRY_COUNT, DEFAULT_TRY_DELAY) { }
 
         /// <summary>
         /// The node used to discover endpoints in an ElastiCache cluster
         /// </summary>
-        /// <param name="client">The client discovery node is contained within</param>
+        /// <param name="config">The config of the client to access the SocketPool</param>
         /// <param name="hostname">The host name of the cluster with .cfg. in name</param>
         /// <param name="port">The port of the cluster</param>
-        /// <param name="config">The config of the client to access the SocketPool</param>
         /// <param name="tries">The number of tries for requesting config info</param>
         /// <param name="delay">The time, in miliseconds, to wait between tries</param>
         internal DiscoveryNode(ElastiCacheClusterConfig config, string hostname, int port, int tries, int delay)
@@ -191,10 +189,9 @@ namespace Amazon.ElastiCacheCluster
             catch (Exception ex)
             {
                 // Error getting the list of endpoints. Most likely this is due to the
-                // client being used outside of EC2. Returning an empty list so that
-                // client will be a noop in a development environment.
+                // client being used outside of EC2. 
                 log.Debug("Error getting endpoints list", ex);
-                return new List<IPEndPoint>();
+                throw;
             }
         }
 
@@ -335,11 +332,14 @@ namespace Amazon.ElastiCacheCluster
                 }
             }
 
+
             if (waiting || entry == null)
             {
                 log.Error("Could not resolve hostname to ip");
                 throw new TimeoutException(String.Format("Could not resolve hostname to Ip after trying the specified amount: {0}. " + message, this.tries));
             }
+
+            log.DebugFormat("Resolved configuration endpoint {0} to {1}.", hostname, entry.AddressList[0]);
 
             lock (endpointLock)
             {
