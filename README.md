@@ -15,16 +15,22 @@ ElastiCacheClusterConfig can also be instantiated by providing it an AutoConfigS
 Once instantiation occurs in this way, MemcachedClient can be used the same way as the [Enyim Client](https://github.com/enyim/EnyimMemcached). The only difference is a background process polls the cluster and updates nodes when changes occur.
 
 ## App.config
-To configure the AutoClient from app.config the section "clusterclient" or the specified section must have an endpoint that contains a hostname and port specified as so:
+The ElastiCacheClusterConfig object can be configured from an application's App.config file. Here is a sample App.config that configures the Amazon ElastiCache configuration URL and the polling interval at which the client will check for changes to the cluster.
 
-    <endpoint hostname="clusterclient.4mpstz.cfg.use1.cache.amazonaws.com" port="11211" />
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <configSections>
+      <section name="clusterclient" type="Amazon.ElastiCacheCluster.ClusterConfigSettings, Amazon.ElastiCacheCluster" />
+    </configSections>
 
-There are also optional regions as shown below:
+    <clusterclient>
+      <endpoint hostname="my-configuruation-url.cache.amazonaws.com" port="11211" />
+      <poller intervalDelay="60000" />
+    </clusterclient>
 
-    <node nodeTries="5" nodeDelay="1000" />
-    <poller intervalDelay="60000" />
+</configuration>
 
-These settings as well as all the settings included in Enyim can be configured through the app.config as seen [here](https://github.com/enyim/EnyimMemcached/wiki/MemcachedClient-Configuration#appconfig).
+The rest of the app.config configuration items for Enyim can be found [here](https://github.com/enyim/EnyimMemcached/wiki/MemcachedClient-Configuration#appconfig).
 
 ## Enyim Client
 Because this binary is used as a configuration object for the Enyim MemcachedClient, usage beyond instantiation is all exactly the same so refer to [this wiki](https://github.com/enyim/EnyimMemcached/wiki) or [this google group](https://groups.google.com/forum/#!forum/enyim-memcached) on how to use the actual client.
