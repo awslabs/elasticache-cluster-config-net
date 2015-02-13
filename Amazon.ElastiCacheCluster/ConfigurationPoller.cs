@@ -82,7 +82,8 @@ namespace Amazon.ElastiCacheCluster
             {
                 var oldVersion = config.DiscoveryNode.ClusterVersion;
                 var endPoints = config.DiscoveryNode.GetEndPointList();
-                if (oldVersion != config.DiscoveryNode.ClusterVersion)
+                if (oldVersion != config.DiscoveryNode.ClusterVersion || 
+                    (this.config.Pool.nodeLocator != null && endPoints.Count != this.config.Pool.nodeLocator.GetWorkingNodes().Count()))
                 {
                     log.DebugFormat("Updating endpoints to have {0} nodes", endPoints.Count);
                     this.config.Pool.UpdateLocator(endPoints);
@@ -97,7 +98,8 @@ namespace Amazon.ElastiCacheCluster
 
                     var oldVersion = config.DiscoveryNode.ClusterVersion;
                     var endPoints = config.DiscoveryNode.GetEndPointList();
-                    if (oldVersion != config.DiscoveryNode.ClusterVersion)
+                    if (oldVersion != config.DiscoveryNode.ClusterVersion ||
+                        (this.config.Pool.nodeLocator != null && endPoints.Count != this.config.Pool.nodeLocator.GetWorkingNodes().Count()))
                     {
                         log.DebugFormat("Updating endpoints to have {0} nodes", endPoints.Count);
                         this.config.Pool.UpdateLocator(endPoints);
