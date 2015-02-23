@@ -163,7 +163,6 @@ namespace Amazon.ElastiCacheCluster
         #endregion
 
         #region Config Info
-
         /// <summary>
         /// Parses the string NodeConfig into a list of IPEndPoints for configuration
         /// </summary>
@@ -176,11 +175,23 @@ namespace Amazon.ElastiCacheCluster
 
                 lock (nodesLock)
                 {
-                    this.nodes.Clear();
+                    var nodesToRemove = new HashSet<IMemcachedNode>();
+                    foreach (var node in this.nodes)
+                    {
+                        if (!endpoints.Contains(node.EndPoint))
+                            nodesToRemove.Add(node);
+                    }
+                    foreach (var node in nodesToRemove)
+                    {
+                        this.nodes.Remove(node);
+                    }
 
                     foreach (var point in endpoints)
                     {
-                        this.nodes.Add(this.config.nodeFactory.CreateNode(point, this.config.SocketPool));
+                        if (this.nodes.FirstOrDefault(x => x.EndPoint.Equals(point)) == null)
+                        {
+                            this.nodes.Add(this.config.nodeFactory.CreateNode(point, this.config.SocketPool));
+                        }
                     }
                 }
 
