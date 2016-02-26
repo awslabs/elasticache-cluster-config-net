@@ -113,6 +113,7 @@ namespace Amazon.ElastiCacheCluster
             this.Authentication = (IAuthenticationConfiguration)setup.Authentication ?? new AuthenticationConfiguration();
 
             this.nodeFactory = setup.NodeFactory ?? new DefaultConfigNodeFactory();
+            this.nodeLocator = setup.NodeLocator != null ? setup.NodeLocator.Type : typeof(DefaultNodeLocator);
             
             if (setup.Transcoder != null)
             {
