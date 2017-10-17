@@ -326,8 +326,11 @@ namespace Amazon.ElastiCacheCluster.Pools
             newLocator.Initialize(aliveList);
 
             // Retain All Nodes List With IsAlive Status
-            aliveList.AddRange(deadList);
-            this.allNodes = aliveList.ToArray();
+            var allNodesList = new List<IMemcachedNode>(nodes.Length);
+            allNodesList.AddRange(aliveList);
+            allNodesList.AddRange(deadList);
+
+            this.allNodes = allNodesList.ToArray();
 
             Interlocked.Exchange(ref this.nodeLocator, newLocator);
         }
