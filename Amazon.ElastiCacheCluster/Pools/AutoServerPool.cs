@@ -299,13 +299,38 @@ namespace Amazon.ElastiCacheCluster.Pools
         public void UpdateLocator(List<IPEndPoint> endPoints)
         {
             var newLocator = this.configuration.CreateNodeLocator();
-            newLocator.Initialize(endPoints.Select(ip =>
+
+            var nodes = endPoints.Select(ip =>
             {
                 var node = this.CreateNode(ip);
                 node.Failed += this.NodeFail;
 
                 return node;
-            }).ToArray());
+            }).ToArray();
+
+            var aliveList = new List<IMemcachedNode>(nodes.Length);
+            var deadList = new List<IMemcachedNode>(nodes.Length);
+            foreach (var node in nodes)
+            {
+                var result = this.allNodes.Where(n => n.EndPoint.Equals(node.EndPoint)).ToList();
+
+                if (result.Count > 0 && !result[0].IsAlive)
+                {
+                    deadList.Add(result[0]);
+                    continue;
+                }
+
+                aliveList.Add(node);
+            }
+
+            newLocator.Initialize(aliveList);
+
+            // Retain All Nodes List With IsAlive Status
+            var allNodesList = new List<IMemcachedNode>(nodes.Length);
+            allNodesList.AddRange(aliveList);
+            allNodesList.AddRange(deadList);
+
+            this.allNodes = allNodesList.ToArray();
 
             Interlocked.Exchange(ref this.nodeLocator, newLocator);
         }
