@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Results.Extensions;
 using Enyim.Caching.Memcached;
@@ -84,6 +85,11 @@ namespace Amazon.ElastiCacheCluster.Operations
 
             var result = new TextOperationResult();
             return result.Pass();
+        }
+
+        protected override ValueTask<IOperationResult> ReadResponseAsync(PooledSocket socket)
+        {
+            return new ValueTask<IOperationResult>(ReadResponse(socket));
         }
 
         protected override bool ReadResponseAsync(PooledSocket socket, Action<bool> next)

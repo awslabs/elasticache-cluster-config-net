@@ -1,7 +1,7 @@
 /*
  * Copyright 2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * 
- * Portions copyright 2010 Attila Kiskó, enyim.com. Please see LICENSE.txt
+ * Portions copyright 2010 Attila KiskÃ³, enyim.com. Please see LICENSE.txt
  * for applicable license terms and NOTICE.txt for applicable notices.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -107,7 +107,7 @@ namespace Amazon.ElastiCacheCluster.Operations
 #region [ License information          ]
 /* ************************************************************
  * 
- *    Copyright (c) 2010 Attila Kiskó, enyim.com
+ *    Copyright (c) 2010 Attila KiskÃ³, enyim.com
  *    
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.

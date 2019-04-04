@@ -15,9 +15,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Amazon.ElastiCacheCluster.Factories;
+using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
+using Microsoft.Extensions.Logging;
 
 namespace LocalSimulationTests
 {
@@ -30,7 +33,7 @@ namespace LocalSimulationTests
             this.node = new TestNode();
         }
 
-        public IMemcachedNode CreateNode(System.Net.IPEndPoint endpoint, Enyim.Caching.Configuration.ISocketPoolConfiguration config)
+        public IMemcachedNode CreateNode(DnsEndPoint endpoint, ISocketPoolConfiguration config, ILoggerFactory loggerFactory)
         {
             return node;
         }

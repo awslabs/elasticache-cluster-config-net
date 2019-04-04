@@ -14,17 +14,36 @@
  */
 using System;
 using System.Configuration;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Amazon.ElastiCacheCluster;
 using Enyim.Caching;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 
 namespace LocalSimulationTests
 {
     [TestClass]
-    public class ConfigTests
+    public class ConfigTests: IDisposable
     {
         ElastiCacheClusterConfig config;
         MemcachedClient client;
+        private ILoggerFactory loggerFactory;
+
+        [TestInitialize]
+        public void SetupClass()
+        {
+            var configureNamedOptions = new ConfigureNamedOptions<ConsoleLoggerOptions>("", null);
+            var optionsFactory = new OptionsFactory<ConsoleLoggerOptions>(new []{ configureNamedOptions }, Enumerable.Empty<IPostConfigureOptions<ConsoleLoggerOptions>>());
+            var optionsMonitor = new OptionsMonitor<ConsoleLoggerOptions>(optionsFactory, Enumerable.Empty<IOptionsChangeTokenSource<ConsoleLoggerOptions>>(), new OptionsCache<ConsoleLoggerOptions>());
+            loggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider(optionsMonitor) }, new LoggerFilterOptions { MinLevel = LogLevel.Information });
+        }
+        
+        public void Dispose()
+        {
+            loggerFactory.Dispose();
+        }
 
         [TestMethod]
         public void ConfigTest()
@@ -32,7 +51,7 @@ namespace LocalSimulationTests
             // The url below is used to bypass the .cfg. contraint of the hostname for testing locally
             ClusterConfigSettings settings = new ClusterConfigSettings("www.cfg.org", 11211);
             settings.NodeFactory = new NodeFactory();
-            config = new ElastiCacheClusterConfig(settings);
+            config = new ElastiCacheClusterConfig(loggerFactory, settings);
             this.config.DiscoveryNode.Dispose();
         }
 
@@ -42,9 +61,9 @@ namespace LocalSimulationTests
             // The url below is used to bypass the .cfg. contraint of the hostname for testing locally
             ClusterConfigSettings settings = new ClusterConfigSettings("www.cfg.org", 11211);
             settings.NodeFactory = new NodeFactory();
-            config = new ElastiCacheClusterConfig(settings);
+            config = new ElastiCacheClusterConfig(loggerFactory, settings);
 
-            client = new MemcachedClient(config);
+            client = new MemcachedClient(loggerFactory, config);
 
             Assert.AreEqual(new Version("1.4.14"), config.DiscoveryNode.NodeVersion);
             Assert.AreEqual(1, config.DiscoveryNode.ClusterVersion);
@@ -61,9 +80,9 @@ namespace LocalSimulationTests
             ClusterConfigSettings settings = new ClusterConfigSettings("www.cfg.org", 11211);
             settings.NodeFactory = new NodeFactory();
             settings.ClusterPoller.IntervalDelay = 1000;
-            config = new ElastiCacheClusterConfig(settings);
+            config = new ElastiCacheClusterConfig(loggerFactory, settings);
 
-            client = new MemcachedClient(config);
+            client = new MemcachedClient(loggerFactory, config);
 
             // Buffer time to wait, this can fail occasionally because delays can occur in the poller or timer
             System.Threading.Thread.Sleep(3000);

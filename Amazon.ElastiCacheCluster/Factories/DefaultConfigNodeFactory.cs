@@ -19,14 +19,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Factories
 {
     internal class DefaultConfigNodeFactory : IConfigNodeFactory
     {
-        public IMemcachedNode CreateNode(IPEndPoint endpoint, ISocketPoolConfiguration config)
+        public IMemcachedNode CreateNode(DnsEndPoint endpoint, ISocketPoolConfiguration config, ILoggerFactory loggerFactory)
         {
-            return new MemcachedNode(endpoint, config);
+            return new MemcachedNode(endpoint, config, loggerFactory.CreateLogger<MemcachedNode>());
         }
     }
 }

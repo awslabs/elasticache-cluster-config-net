@@ -1,7 +1,7 @@
 /*
  * Copyright 2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * 
- * Portions copyright 2010 Attila Kiskó, enyim.com. Please see LICENSE.txt
+ * Portions copyright 2010 Attila Kiskï¿½, enyim.com. Please see LICENSE.txt
  * for applicable license terms and NOTICE.txt for applicable notices.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -15,6 +15,8 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
+using System.Threading.Tasks;
 using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol;
 using Enyim.Caching.Memcached.Results;
@@ -51,6 +53,11 @@ namespace Amazon.ElastiCacheCluster.Operations
             GetHelper.FinishCurrent(socket);
 
             return result.Pass();
+        }
+
+        protected override ValueTask<IOperationResult> ReadResponseAsync(PooledSocket socket)
+        {
+            return new ValueTask<IOperationResult>(ReadResponse(socket));
         }
 
         CacheItem IGetOperation.Result

@@ -18,14 +18,9 @@ using System.Linq;
 using System.Text;
 
 using System.Net;
-using System.Configuration;
-using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
 using Amazon.ElastiCacheCluster.Helpers;
 using Amazon.ElastiCacheCluster.Operations;
-using Amazon.ElastiCacheCluster.Pools;
-using Enyim.Caching.Memcached.Results;
-using Enyim.Caching.Memcached.Protocol;
 
 namespace Amazon.ElastiCacheCluster
 {
@@ -60,7 +55,7 @@ namespace Amazon.ElastiCacheCluster
 
         #region Private Fields
 
-        private IPEndPoint EndPoint;
+        private DnsEndPoint EndPoint;
 
         private IMemcachedNode Node;
 
@@ -145,7 +140,7 @@ namespace Amazon.ElastiCacheCluster
         /// </summary>
         internal void StartPoller()
         {
-            this.config.Pool.UpdateLocator(new List<IPEndPoint>(new IPEndPoint[] { this.EndPoint }));
+            this.config.Pool.UpdateLocator(new List<DnsEndPoint>(new DnsEndPoint[] { this.EndPoint }));
             this.poller = new ConfigurationPoller(this.config);
             this.poller.StartTimer();
         }
@@ -167,7 +162,7 @@ namespace Amazon.ElastiCacheCluster
         /// Parses the string NodeConfig into a list of IPEndPoints for configuration
         /// </summary>
         /// <returns>A list of IPEndPoints for config to use</returns>
-        internal List<IPEndPoint> GetEndPointList()
+        internal List<DnsEndPoint> GetEndPointList()
         {
             try
             {
@@ -190,7 +185,7 @@ namespace Amazon.ElastiCacheCluster
                     {
                         if (this.nodes.FirstOrDefault(x => x.EndPoint.Equals(point)) == null)
                         {
-                            this.nodes.Add(this.config.nodeFactory.CreateNode(point, this.config.SocketPool));
+                            this.nodes.Add(this.config.nodeFactory.CreateNode(point, this.config.SocketPool, config.LoggerFactory));
                         }
                     }
                 }
@@ -318,7 +313,7 @@ namespace Amazon.ElastiCacheCluster
         /// Tries to resolve the endpoint ip, used if the connection fails
         /// </summary>
         /// <returns>The resolved endpoint as an ip and port</returns>
-        internal IPEndPoint ResolveEndPoint()
+        internal DnsEndPoint ResolveEndPoint()
         {
             IPHostEntry entry = null;
             var waiting = true;
@@ -354,7 +349,7 @@ namespace Amazon.ElastiCacheCluster
 
             lock (endpointLock)
             {
-                this.EndPoint = new IPEndPoint(entry.AddressList[0], port);
+                this.EndPoint = new DnsEndPoint(entry.AddressList[0].ToString(), port);
             }
 
             lock (nodesLock)
@@ -367,7 +362,7 @@ namespace Amazon.ElastiCacheCluster
                     }
                     catch { }
                 }
-                this.Node = this.config.nodeFactory.CreateNode(this.EndPoint, this.config.SocketPool);
+                this.Node = this.config.nodeFactory.CreateNode(this.EndPoint, this.config.SocketPool, config.LoggerFactory);
                 this.nodes.Clear();
                 this.nodes.Add(this.Node);
             }

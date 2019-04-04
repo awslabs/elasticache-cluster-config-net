@@ -19,6 +19,7 @@ using System.Text;
 using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol;
 using System.Net;
+using System.Threading.Tasks;
 using Amazon.ElastiCacheCluster.Operations;
 using Enyim.Caching.Memcached.Results;
 
@@ -26,8 +27,8 @@ namespace LocalSimulationTests
 {
     public class TestNode : IMemcachedNode
     {
-        private IPEndPoint end;
-        public IPEndPoint EndPoint { get { return end; } set { this.end = value; } }
+        private EndPoint end;
+        public EndPoint EndPoint { get { return end; } set { this.end = value; } }
 
         private int requestNum = 1;
 
@@ -57,6 +58,11 @@ namespace LocalSimulationTests
             var result = new PooledSocketResult();
             result.Success = true;
             return result;
+        }
+
+        public Task<IOperationResult> ExecuteAsync(IOperation op)
+        {
+            throw new NotImplementedException();
         }
 
         public override string ToString()

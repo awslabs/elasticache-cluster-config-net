@@ -16,15 +16,11 @@
  * permissions and limitations under the License.
  */
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
-using System.Threading;
 using Enyim.Caching.Configuration;
-using Enyim.Collections;
-using System.Security;
 using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol.Binary;
+using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Pools
 {
@@ -35,19 +31,24 @@ namespace Amazon.ElastiCacheCluster.Pools
     {
         ISaslAuthenticationProvider authenticationProvider;
         IMemcachedClientConfiguration configuration;
+        private readonly ILoggerFactory loggerFactory;
 
-        public AutoBinaryPool(IMemcachedClientConfiguration configuration)
-            : base(configuration, new BinaryOperationFactory())
+        public AutoBinaryPool(IMemcachedClientConfiguration configuration, ILoggerFactory loggerFactory)
+            : base(configuration,
+                new BinaryOperationFactory(loggerFactory.CreateLogger<BinaryOperationFactory>()), 
+                loggerFactory)
         {
             this.authenticationProvider = GetProvider(configuration);
             this.configuration = configuration;
+            this.loggerFactory = loggerFactory;
         }
 
-        protected override IMemcachedNode CreateNode(IPEndPoint endpoint)
+        protected override IMemcachedNode CreateNode(DnsEndPoint endpoint)
         {
             if (endpoint == null)
-                throw new ArgumentNullException("endpoint");
-            return new BinaryNode(endpoint, this.configuration.SocketPool, this.authenticationProvider);
+                throw new ArgumentNullException(nameof(endpoint));
+            return new BinaryNode(endpoint, this.configuration.SocketPool, this.authenticationProvider, 
+                loggerFactory.CreateLogger<BinaryNode>());
         }
 
         private static ISaslAuthenticationProvider GetProvider(IMemcachedClientConfiguration configuration)

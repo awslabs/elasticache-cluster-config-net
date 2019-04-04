@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Timers;
 
 namespace Amazon.ElastiCacheCluster
@@ -114,7 +113,7 @@ namespace Amazon.ElastiCacheCluster
                      * is running in development outside of EC2. ElastiCache clusters are only accessible from an EC2 instance
                      * with the right security permissions.
                      */
-                    this.config.Pool.UpdateLocator(new List<System.Net.IPEndPoint>());
+                    this.config.Pool.UpdateLocator(new List<System.Net.DnsEndPoint>());
                 }
             }
         }

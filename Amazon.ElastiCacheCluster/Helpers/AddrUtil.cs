@@ -30,16 +30,15 @@ namespace Amazon.ElastiCacheCluster.Helpers
         /// </summary>
         /// <param name="endpoints">Format: host1|ip1|port1 host2|ip2|port2 ...</param>
         /// <returns>List of the endpoints parsed to ip:port endpoints for connections</returns>
-        public static List<IPEndPoint> HashEndPointList(string endpoints)
+        public static List<DnsEndPoint> HashEndPointList(string endpoints)
         {
-            List<IPEndPoint> list = new List<IPEndPoint>();
+            var list = new List<DnsEndPoint>();
             foreach (var node in endpoints.Split(' '))
             {
                 string[] parts = node.Split('|');
-                IPAddress ip;
-                if (IPAddress.TryParse(parts[1], out ip))
+                if (IPAddress.TryParse(parts[1], out _))
                 {
-                    list.Add(new IPEndPoint(ip, Convert.ToInt32(parts[2])));
+                    list.Add(new DnsEndPoint(parts[1], Convert.ToInt32(parts[2])));
                 }
             }
             return list;
