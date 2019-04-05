@@ -13,17 +13,15 @@
  * permissions and limitations under the License.
  */
 using Enyim.Caching.Memcached.Protocol;
-using Enyim.Caching.Memcached.Protocol.Text;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Results.Extensions;
 using Enyim.Caching.Memcached;
 using Amazon.ElastiCacheCluster.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Operations
 {
@@ -33,12 +31,17 @@ namespace Amazon.ElastiCacheCluster.Operations
     internal class ConfigGetOperation : SingleItemOperation, IGetOperation, IConfigOperation
     {
         private CacheItem result;
+        private readonly ILogger log;
 
         /// <summary>
         /// Creates a config get for ElastiCache
         /// </summary>
         /// <param name="key"></param>
-        public ConfigGetOperation(string key) : base(key) { }
+        /// <param name="log"></param>
+        public ConfigGetOperation(string key, ILogger log) : base(key)
+        {
+            this.log = log;
+        }
 
         protected override IList<ArraySegment<byte>> GetBuffer()
         {
@@ -49,7 +52,7 @@ namespace Amazon.ElastiCacheCluster.Operations
 
         protected override Enyim.Caching.Memcached.Results.IOperationResult ReadResponse(PooledSocket socket)
         {
-            string description = TextSocketHelper.ReadResponse(socket);
+            string description = TextSocketHelper.ReadResponse(socket, log);
 
             if (String.Compare(description, "END", StringComparison.Ordinal) == 0)
                 return null;
@@ -78,7 +81,7 @@ namespace Amazon.ElastiCacheCluster.Operations
             this.result = new CacheItem(flags, new ArraySegment<byte>(allNodes, 0, length));
             this.ConfigResult = this.result;
 
-            string response = TextSocketHelper.ReadResponse(socket);
+            string response = TextSocketHelper.ReadResponse(socket, log);
 
             if (String.Compare(response, "END", StringComparison.Ordinal) != 0)
                 throw new MemcachedClientException("No END was received.");

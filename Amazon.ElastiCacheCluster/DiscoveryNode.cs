@@ -21,6 +21,7 @@ using System.Net;
 using Enyim.Caching.Memcached;
 using Amazon.ElastiCacheCluster.Helpers;
 using Amazon.ElastiCacheCluster.Operations;
+using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster
 {
@@ -31,10 +32,10 @@ namespace Amazon.ElastiCacheCluster
     {
         #region Static ReadOnlys
 
-        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(DiscoveryNode));
+        private readonly ILogger log;
 
-        internal static readonly int DEFAULT_TRY_COUNT = 5;
-        internal static readonly int DEFAULT_TRY_DELAY = 1000;
+        internal const int DEFAULT_TRY_COUNT = 5;
+        internal const int DEFAULT_TRY_DELAY = 1000;
 
         #endregion
 
@@ -121,6 +122,7 @@ namespace Amazon.ElastiCacheCluster
             this.ClusterVersion = 0;
             this.tries = tries;
             this.delay = delay;
+            this.log = config.LoggerFactory.CreateLogger<DiscoveryNode>();
 
             this.clusterLock = new Object();
             this.endpointLock = new Object();
@@ -196,7 +198,7 @@ namespace Amazon.ElastiCacheCluster
             {
                 // Error getting the list of endpoints. Most likely this is due to the
                 // client being used outside of EC2. 
-                log.Debug("Error getting endpoints list", ex);
+                log.LogDebug("Error getting endpoints list", ex);
                 throw;
             }
         }
@@ -215,9 +217,9 @@ namespace Amazon.ElastiCacheCluster
             string message = "";
             string[] items = null;
 
-            IGetOperation command = nodeVersion.CompareTo(older) < 0 ?
-                                        command = new GetOperation("AmazonElastiCache:cluster") :
-                                        command = new ConfigGetOperation("cluster");
+            var command = nodeVersion.CompareTo(older) < 0
+                ? (IGetOperation) new GetOperation("AmazonElastiCache:cluster", config.LoggerFactory.CreateLogger<GetOperation>())
+                : new ConfigGetOperation("cluster", config.LoggerFactory.CreateLogger<ConfigGetOperation>());
 
             while (waiting && tries > 0)
             {
@@ -287,11 +289,13 @@ namespace Amazon.ElastiCacheCluster
                 return this.NodeVersion;
             }
 
+            #if DEBUG // For LocalSimulationTester
             if (!string.IsNullOrEmpty(this.Node.ToString()) && this.Node.ToString().Equals("TestingAWSInternal"))
             {
                 this.NodeVersion = new Version("1.4.14");
                 return this.NodeVersion;
             }
+            #endif
 
             IStatsOperation statcommand = new Enyim.Caching.Memcached.Protocol.Text.StatsOperation(null);
             var statresult = this.Node.Execute(statcommand);
@@ -304,7 +308,7 @@ namespace Amazon.ElastiCacheCluster
             }
             else
             {
-                log.Error("Could not call stats on Node endpoint");
+                log.LogError("Could not call stats on Node endpoint");
                 throw new CommandNotSupportedException("The node does not have a version in stats.");
             }
         }
@@ -341,11 +345,11 @@ namespace Amazon.ElastiCacheCluster
 
             if (waiting || entry == null)
             {
-                log.Error("Could not resolve hostname to ip");
+                log.LogError("Could not resolve hostname to ip");
                 throw new TimeoutException(String.Format("Could not resolve hostname to Ip after trying the specified amount: {0}. " + message, this.tries));
             }
 
-            log.DebugFormat("Resolved configuration endpoint {0} to {1}.", hostname, entry.AddressList[0]);
+            log.LogDebug("Resolved configuration endpoint {Hostname} to {Address}.", hostname, entry.AddressList[0]);
 
             lock (endpointLock)
             {

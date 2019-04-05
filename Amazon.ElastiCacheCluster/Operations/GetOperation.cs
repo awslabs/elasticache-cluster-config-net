@@ -22,14 +22,19 @@ using Enyim.Caching.Memcached.Protocol;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Results.Extensions;
 using Amazon.ElastiCacheCluster.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Operations
 {
     internal class GetOperation : SingleItemOperation, IGetOperation, IConfigOperation
     {
         private CacheItem result;
+        private readonly ILogger log;
 
-        internal GetOperation(string key) : base(key) { }
+        internal GetOperation(string key, ILogger log) : base(key)
+        {
+            this.log = log;
+        }
 
         protected override System.Collections.Generic.IList<System.ArraySegment<byte>> GetBuffer()
         {
@@ -40,7 +45,7 @@ namespace Amazon.ElastiCacheCluster.Operations
 
         protected override IOperationResult ReadResponse(PooledSocket socket)
         {
-            GetResponse r = GetHelper.ReadItem(socket);
+            GetResponse r = GetHelper.ReadItem(socket, log);
             var result = new TextOperationResult();
 
             if (r == null) return result.Fail("Failed to read response");
@@ -50,7 +55,7 @@ namespace Amazon.ElastiCacheCluster.Operations
 
             this.Cas = r.CasValue;
 
-            GetHelper.FinishCurrent(socket);
+            GetHelper.FinishCurrent(socket, log);
 
             return result.Pass();
         }

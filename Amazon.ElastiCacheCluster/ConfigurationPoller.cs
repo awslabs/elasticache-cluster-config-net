@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster
 {
@@ -24,7 +25,7 @@ namespace Amazon.ElastiCacheCluster
     /// </summary>
     internal class ConfigurationPoller
     {
-        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(ConfigurationPoller));
+        private readonly ILogger log;
 
         #region Defaults
 
@@ -55,6 +56,7 @@ namespace Amazon.ElastiCacheCluster
         {
             this.intervalDelay = intervalDelay < 0 ? DEFAULT_INTERVAL_DELAY : intervalDelay;
             this.config = config;
+            log = config.LoggerFactory.CreateLogger<ConfigurationPoller>();
 
             this.timer = new Timer(this.intervalDelay);
             this.timer.Elapsed += this.pollOnTimedEvent;
@@ -66,7 +68,7 @@ namespace Amazon.ElastiCacheCluster
 
         internal void StartTimer()
         {
-            log.Debug("Starting timer");
+            log.LogDebug("Starting timer");
             this.pollOnTimedEvent(null, null);
             this.timer.Start();
         }
@@ -76,7 +78,7 @@ namespace Amazon.ElastiCacheCluster
         /// </summary>
         internal void pollOnTimedEvent(Object source, ElapsedEventArgs evnt)
         {
-            log.Debug("Polling...");
+            log.LogDebug("Polling...");
             try
             {
                 var oldVersion = config.DiscoveryNode.ClusterVersion;
@@ -84,7 +86,7 @@ namespace Amazon.ElastiCacheCluster
                 if (oldVersion != config.DiscoveryNode.ClusterVersion || 
                     (this.config.Pool.nodeLocator != null && endPoints.Count != this.config.Pool.nodeLocator.GetWorkingNodes().Count()))
                 {
-                    log.DebugFormat("Updating endpoints to have {0} nodes", endPoints.Count);
+                    log.LogDebug("Updating endpoints to have {Count} nodes", endPoints.Count);
                     this.config.Pool.UpdateLocator(endPoints);
                 }
             }
@@ -92,7 +94,7 @@ namespace Amazon.ElastiCacheCluster
             {
                 try
                 {
-                    log.Debug("Error updating endpoints, going to attempt to reresolve configuration endpoint.", e);
+                    log.LogDebug("Error updating endpoints, going to attempt to reresolve configuration endpoint.", e);
                     config.DiscoveryNode.ResolveEndPoint();
 
                     var oldVersion = config.DiscoveryNode.ClusterVersion;
@@ -100,13 +102,13 @@ namespace Amazon.ElastiCacheCluster
                     if (oldVersion != config.DiscoveryNode.ClusterVersion ||
                         (this.config.Pool.nodeLocator != null && endPoints.Count != this.config.Pool.nodeLocator.GetWorkingNodes().Count()))
                     {
-                        log.DebugFormat("Updating endpoints to have {0} nodes", endPoints.Count);
+                        log.LogDebug("Updating endpoints to have {Count} nodes", endPoints.Count);
                         this.config.Pool.UpdateLocator(endPoints);
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.Debug("Error updating endpoints. Setting endpoints to empty collection of nodes.", ex);
+                    log.LogDebug("Error updating endpoints. Setting endpoints to empty collection of nodes.", ex);
 
                     /* 
                      * We were not able to retrieve the current node configuration. This is most likely because the application
@@ -125,9 +127,8 @@ namespace Amazon.ElastiCacheCluster
         /// </summary>
         public void StopPolling()
         {
-            log.Debug("Destroying poller thread");
-            if (this.timer != null)
-                this.timer.Dispose();
+            log.LogDebug("Destroying poller thread");
+            timer?.Dispose();
         }
     }
 }

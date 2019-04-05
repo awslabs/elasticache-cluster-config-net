@@ -20,6 +20,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using Enyim.Caching.Memcached;
+using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Helpers
 {
@@ -35,8 +36,6 @@ namespace Amazon.ElastiCacheCluster.Helpers
         /// </summary>
         public const string CommandTerminator = "\r\n";
 
-        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(TextSocketHelper));
-
         /// <summary>
         /// Reads the response of the server.
         /// </summary>
@@ -44,12 +43,11 @@ namespace Amazon.ElastiCacheCluster.Helpers
         /// <exception cref="T:System.InvalidOperationException">The server did not sent a response or an empty line was returned.</exception>
         /// <exception cref="T:Enyim.Caching.Memcached.MemcachedException">The server did not specified any reason just returned the string ERROR. - or - The server returned a SERVER_ERROR, in this case the Message of the exception is the message returned by the server.</exception>
         /// <exception cref="T:Enyim.Caching.Memcached.MemcachedClientException">The server did not recognize the request sent by the client. The Message of the exception is the message returned by the server.</exception>
-        internal static string ReadResponse(PooledSocket socket)
+        internal static string ReadResponse(PooledSocket socket, ILogger log)
         {
-            string response = TextSocketHelper.ReadLine(socket);
+            string response = TextSocketHelper.ReadLine(socket, log);
 
-            if (log.IsDebugEnabled)
-                log.Debug("Received response: " + response);
+            log.LogDebug("Received response: " + response);
 
             if (String.IsNullOrEmpty(response))
                 throw new MemcachedClientException("Empty response received.");
@@ -77,7 +75,7 @@ namespace Amazon.ElastiCacheCluster.Helpers
         /// Reads a line from the socket. A line is terninated by \r\n.
         /// </summary>
         /// <returns></returns>
-        private static string ReadLine(PooledSocket socket)
+        private static string ReadLine(PooledSocket socket, ILogger log)
         {
             MemoryStream ms = new MemoryStream(50);
 
@@ -111,8 +109,7 @@ namespace Amazon.ElastiCacheCluster.Helpers
 
             string retval = Encoding.ASCII.GetString(ms.GetBuffer(), 0, (int)ms.Length);
 
-            if (log.IsDebugEnabled)
-                log.Debug("ReadLine: " + retval);
+            log.LogDebug("ReadLine: " + retval);
 
             return retval;
         }

@@ -31,7 +31,7 @@ namespace Amazon.ElastiCacheCluster.Pools
     /// </summary>
     internal class AutoServerPool : IServerPool, IDisposable
     {
-        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(DefaultServerPool));
+        private readonly ILogger log;
 
         private IMemcachedNode[] allNodes;
 
@@ -59,6 +59,7 @@ namespace Amazon.ElastiCacheCluster.Pools
 
             this.deadTimeoutMsec = (long)this.configuration.SocketPool.DeadTimeout.TotalMilliseconds;
             this.loggerFactory = loggerFactory;
+            log = loggerFactory.CreateLogger<AutoServerPool>();
         }
 
         ~AutoServerPool()
@@ -75,9 +76,7 @@ namespace Amazon.ElastiCacheCluster.Pools
 
         private void rezCallback(object state)
         {
-            var isDebug = log.IsDebugEnabled;
-
-            if (isDebug) log.Debug("Checking the dead servers.");
+            log.LogDebug("Checking the dead servers.");
 
             // how this works:
             // 1. timer is created but suspended
@@ -97,7 +96,7 @@ namespace Amazon.ElastiCacheCluster.Pools
             {
                 if (this.isDisposed)
                 {
-                    if (log.IsWarnEnabled) log.Warn("IsAlive timer was triggered but the pool is already disposed. Ignoring.");
+                    log.LogWarning("IsAlive timer was triggered but the pool is already disposed. Ignoring.");
 
                     return;
                 }
@@ -112,24 +111,24 @@ namespace Amazon.ElastiCacheCluster.Pools
                     var n = nodes[i];
                     if (n.IsAlive)
                     {
-                        if (isDebug) log.DebugFormat("Alive: {0}", n.EndPoint);
+                        log.LogDebug("Alive: {EndPoint}", n.EndPoint);
 
                         aliveList.Add(n);
                     }
                     else
                     {
-                        if (isDebug) log.DebugFormat("Dead: {0}", n.EndPoint);
+                        log.LogDebug("Dead: {EndPoint}", n.EndPoint);
 
                         if (n.Ping())
                         {
                             changed = true;
                             aliveList.Add(n);
 
-                            if (isDebug) log.Debug("Ping ok.");
+                            log.LogDebug("Ping ok.");
                         }
                         else
                         {
-                            if (isDebug) log.Debug("Still dead.");
+                            log.LogDebug("Still dead.");
 
                             deadCount++;
                         }
@@ -139,7 +138,7 @@ namespace Amazon.ElastiCacheCluster.Pools
                 // reinit the locator
                 if (changed)
                 {
-                    if (isDebug) log.Debug("Reinitializing the locator.");
+                    log.LogDebug("Reinitializing the locator.");
 
                     this.nodeLocator.Initialize(aliveList);
                 }
@@ -147,13 +146,13 @@ namespace Amazon.ElastiCacheCluster.Pools
                 // stop or restart the timer
                 if (deadCount == 0)
                 {
-                    if (isDebug) log.Debug("deadCount == 0, stopping the timer.");
+                    log.LogDebug("deadCount == 0, stopping the timer.");
 
                     this.isTimerActive = false;
                 }
                 else
                 {
-                    if (isDebug) log.DebugFormat("deadCount == {0}, starting the timer.", deadCount);
+                    log.LogDebug("deadCount == {deadCount}, starting the timer.", deadCount);
 
                     this.resurrectTimer.Change(this.deadTimeoutMsec, Timeout.Infinite);
                 }
@@ -162,8 +161,7 @@ namespace Amazon.ElastiCacheCluster.Pools
 
         private void NodeFail(IMemcachedNode node)
         {
-            var isDebug = log.IsDebugEnabled;
-            if (isDebug) log.DebugFormat("Node {0} is dead.", node.EndPoint);
+            log.LogDebug("Node {EndPoint} is dead.", node.EndPoint);
 
             // the timer is stopped until we encounter the first dead server
             // when we have one, we trigger it and it will run after DeadTimeout has elapsed
@@ -171,7 +169,7 @@ namespace Amazon.ElastiCacheCluster.Pools
             {
                 if (this.isDisposed)
                 {
-                    if (log.IsWarnEnabled) log.Warn("Got a node fail but the pool is already disposed. Ignoring.");
+                    log.LogWarning("Got a node fail but the pool is already disposed. Ignoring.");
 
                     return;
                 }
@@ -190,7 +188,7 @@ namespace Amazon.ElastiCacheCluster.Pools
                 // when we have one, we trigger it and it will run after DeadTimeout has elapsed
                 if (!this.isTimerActive)
                 {
-                    if (isDebug) log.Debug("Starting the recovery timer.");
+                    log.LogDebug("Starting the recovery timer.");
 
                     if (this.resurrectTimer == null)
                         this.resurrectTimer = new Timer(this.rezCallback, null, this.deadTimeoutMsec, Timeout.Infinite);
@@ -199,7 +197,7 @@ namespace Amazon.ElastiCacheCluster.Pools
 
                     this.isTimerActive = true;
 
-                    if (isDebug) log.Debug("Timer started.");
+                    log.LogDebug("Timer started.");
                 }
             }
         }
@@ -272,13 +270,13 @@ namespace Amazon.ElastiCacheCluster.Pools
                 var nd = this.nodeLocator as IDisposable;
                 if (nd != null)
                     try { nd.Dispose(); }
-                    catch (Exception e) { if (log.IsErrorEnabled) log.Error(e); }
+                    catch (Exception e) { log.LogError(e, "Error on disposing a node locator"); }
 
                 this.nodeLocator = null;
 
                 for (var i = 0; i < this.allNodes.Length; i++)
                     try { this.allNodes[i].Dispose(); }
-                    catch (Exception e) { if (log.IsErrorEnabled) log.Error(e); }
+                    catch (Exception e) { log.LogError(e, "Error on disposing the nodes in pool."); }
 
                 // stop the timer
                 if (this.resurrectTimer != null)

@@ -19,24 +19,23 @@ using Enyim.Caching.Memcached;
 using Amazon.ElastiCacheCluster.Helpers;
 using System;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Operations
 {
     internal static class GetHelper
     {
-        private static readonly Enyim.Caching.ILog log = Enyim.Caching.LogManager.GetLogger(typeof(GetHelper));
-
-        public static void FinishCurrent(PooledSocket socket)
+        public static void FinishCurrent(PooledSocket socket, ILogger log)
         {
-            string response = TextSocketHelper.ReadResponse(socket);
+            string response = TextSocketHelper.ReadResponse(socket, log);
 
             if (String.Compare(response, "END", StringComparison.Ordinal) != 0)
                 throw new MemcachedClientException("No END was received.");
         }
 
-        public static GetResponse ReadItem(PooledSocket socket)
+        public static GetResponse ReadItem(PooledSocket socket, ILogger log)
         {
-            string description = TextSocketHelper.ReadResponse(socket);
+            string description = TextSocketHelper.ReadResponse(socket, log);
 
             if (String.Compare(description, "END", StringComparison.Ordinal) == 0)
                 return null;
@@ -75,8 +74,7 @@ namespace Amazon.ElastiCacheCluster.Operations
 
             GetResponse retval = new GetResponse(parts[1], flags, cas, allData);
 
-            if (log.IsDebugEnabled)
-                log.DebugFormat("Received value. Data type: {0}, size: {1}.", retval.Item.Flags, retval.Item.Data.Count);
+            log.LogDebug("Received value. Data type: {Type}, size: {Size}.", retval.Item.Flags, retval.Item.Data.Count);
 
             return retval;
         }
