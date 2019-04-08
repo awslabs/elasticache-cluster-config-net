@@ -15,11 +15,13 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
 using System;
 using System.Net;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol.Binary;
+using Enyim.Reflection;
 using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Pools
@@ -29,26 +31,26 @@ namespace Amazon.ElastiCacheCluster.Pools
     /// </summary>
     internal class AutoBinaryPool : AutoServerPool
     {
-        ISaslAuthenticationProvider authenticationProvider;
-        IMemcachedClientConfiguration configuration;
-        private readonly ILoggerFactory loggerFactory;
+        readonly ISaslAuthenticationProvider _authenticationProvider;
+        readonly IMemcachedClientConfiguration _configuration;
+        private readonly ILoggerFactory _loggerFactory;
 
         public AutoBinaryPool(IMemcachedClientConfiguration configuration, ILoggerFactory loggerFactory)
             : base(configuration,
                 new BinaryOperationFactory(loggerFactory.CreateLogger<BinaryOperationFactory>()), 
                 loggerFactory)
         {
-            this.authenticationProvider = GetProvider(configuration);
-            this.configuration = configuration;
-            this.loggerFactory = loggerFactory;
+            _authenticationProvider = GetProvider(configuration);
+            _configuration = configuration;
+            _loggerFactory = loggerFactory;
         }
 
         protected override IMemcachedNode CreateNode(DnsEndPoint endpoint)
         {
             if (endpoint == null)
                 throw new ArgumentNullException(nameof(endpoint));
-            return new BinaryNode(endpoint, this.configuration.SocketPool, this.authenticationProvider, 
-                loggerFactory.CreateLogger<BinaryNode>());
+            return new BinaryNode(endpoint, _configuration.SocketPool, _authenticationProvider, 
+                _loggerFactory.CreateLogger<BinaryNode>());
         }
 
         private static ISaslAuthenticationProvider GetProvider(IMemcachedClientConfiguration configuration)
@@ -59,7 +61,7 @@ namespace Amazon.ElastiCacheCluster.Pools
             if (auth != null)
             {
                 Type t = auth.Type;
-                var provider = (t == null) ? null : Enyim.Reflection.FastActivator.Create(t) as ISaslAuthenticationProvider;
+                var provider = (t == null) ? null : FastActivator.Create(t) as ISaslAuthenticationProvider;
 
                 if (provider != null)
                 {

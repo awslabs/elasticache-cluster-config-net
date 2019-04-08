@@ -15,10 +15,11 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
 using Enyim.Caching.Memcached;
 using Microsoft.Extensions.Logging;
 
@@ -45,23 +46,24 @@ namespace Amazon.ElastiCacheCluster.Helpers
         /// <exception cref="T:Enyim.Caching.Memcached.MemcachedClientException">The server did not recognize the request sent by the client. The Message of the exception is the message returned by the server.</exception>
         internal static string ReadResponse(PooledSocket socket, ILogger log)
         {
-            string response = TextSocketHelper.ReadLine(socket, log);
+            string response = ReadLine(socket, log);
 
             log.LogDebug("Received response: " + response);
 
-            if (String.IsNullOrEmpty(response))
+            if (string.IsNullOrEmpty(response))
                 throw new MemcachedClientException("Empty response received.");
 
-            if (String.Compare(response, GenericErrorResponse, StringComparison.Ordinal) == 0)
+            if (string.Compare(response, GenericErrorResponse, StringComparison.Ordinal) == 0)
                 throw new NotSupportedException("Operation is not supported by the server or the request was malformed. If the latter please report the bug to the developers.");
 
             if (response.Length >= ErrorResponseLength)
             {
-                if (String.Compare(response, 0, ClientErrorResponse, 0, ErrorResponseLength, StringComparison.Ordinal) == 0)
+                if (string.Compare(response, 0, ClientErrorResponse, 0, ErrorResponseLength, StringComparison.Ordinal) == 0)
                 {
                     throw new MemcachedClientException(response.Remove(0, ErrorResponseLength));
                 }
-                else if (String.Compare(response, 0, ServerErrorResponse, 0, ErrorResponseLength, StringComparison.Ordinal) == 0)
+
+                if (string.Compare(response, 0, ServerErrorResponse, 0, ErrorResponseLength, StringComparison.Ordinal) == 0)
                 {
                     throw new MemcachedException(response.Remove(0, ErrorResponseLength));
                 }
@@ -122,11 +124,11 @@ namespace Amazon.ElastiCacheCluster.Helpers
         /// <returns>The buffer containing the bytes representing the command. The command must be terminated by \r\n.</returns>
         /// <remarks>The Nagle algorithm is disabled on the socket to speed things up, so it's recommended to convert a command into a buffer
         /// and use the <see cref="M:Enyim.Caching.Memcached.PooledSocket.Write(IList&lt;ArraySegment&lt;byte&gt;&gt;)"/> to send the command and the additional buffers in one transaction.</remarks>
-        internal unsafe static IList<ArraySegment<byte>> GetCommandBuffer(string value)
+        internal static IList<ArraySegment<byte>> GetCommandBuffer(string value)
         {
             var data = new ArraySegment<byte>(Encoding.ASCII.GetBytes(value));
 
-            return new ArraySegment<byte>[] { data };
+            return new[] { data };
         }
 
         /// <summary>
@@ -135,7 +137,7 @@ namespace Amazon.ElastiCacheCluster.Helpers
         /// <param name="value">The command to be converted.</param>
         /// <param name="list">The list to store the buffer in.</param>
         /// <returns>The buffer containing the bytes representing the command. The command must be terminated by \r\n.</returns>
-        internal unsafe static IList<ArraySegment<byte>> GetCommandBuffer(string value, IList<ArraySegment<byte>> list)
+        internal static IList<ArraySegment<byte>> GetCommandBuffer(string value, IList<ArraySegment<byte>> list)
         {
             var data = new ArraySegment<byte>(Encoding.ASCII.GetBytes(value));
 

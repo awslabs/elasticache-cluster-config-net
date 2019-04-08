@@ -15,6 +15,7 @@
 using System;
 using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Amazon.ElastiCacheCluster;
 using Enyim.Caching;
@@ -25,22 +26,23 @@ using Microsoft.Extensions.Options;
 namespace LocalSimulationTests
 {
     [TestClass]
-    public class ConfigTests: IDisposable
+    public class ConfigTests 
     {
         ElastiCacheClusterConfig config;
         MemcachedClient client;
         private ILoggerFactory loggerFactory;
 
         [TestInitialize]
-        public void SetupClass()
+        public void Setup()
         {
             var configureNamedOptions = new ConfigureNamedOptions<ConsoleLoggerOptions>("", null);
             var optionsFactory = new OptionsFactory<ConsoleLoggerOptions>(new []{ configureNamedOptions }, Enumerable.Empty<IPostConfigureOptions<ConsoleLoggerOptions>>());
             var optionsMonitor = new OptionsMonitor<ConsoleLoggerOptions>(optionsFactory, Enumerable.Empty<IOptionsChangeTokenSource<ConsoleLoggerOptions>>(), new OptionsCache<ConsoleLoggerOptions>());
-            loggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider(optionsMonitor) }, new LoggerFilterOptions { MinLevel = LogLevel.Information });
+            loggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider(optionsMonitor) }, new LoggerFilterOptions { MinLevel = LogLevel.Trace });
         }
         
-        public void Dispose()
+        [TestCleanup]
+        public void Teardown()
         {
             loggerFactory.Dispose();
         }
@@ -74,7 +76,7 @@ namespace LocalSimulationTests
         }
 
         [TestMethod]
-        public void PollerTesting()
+        public async Task PollerTesting()
         {
             //Poller is set to poll every second to make this test faster
             ClusterConfigSettings settings = new ClusterConfigSettings("www.cfg.org", 11211);
@@ -85,7 +87,8 @@ namespace LocalSimulationTests
             client = new MemcachedClient(loggerFactory, config);
 
             // Buffer time to wait, this can fail occasionally because delays can occur in the poller or timer
-            System.Threading.Thread.Sleep(3000);
+            await Task.Delay(3000);
+//            System.Threading.Thread.Sleep(3000);
             Assert.AreEqual(3, config.DiscoveryNode.ClusterVersion);
             Assert.AreEqual(1, config.DiscoveryNode.NodesInCluster);
 

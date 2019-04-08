@@ -12,9 +12,11 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Timers;
 using Microsoft.Extensions.Logging;
 
@@ -25,41 +27,40 @@ namespace Amazon.ElastiCacheCluster
     /// </summary>
     internal class ConfigurationPoller
     {
-        private readonly ILogger log;
+        private readonly ILogger _log;
 
         #region Defaults
 
         // Poll once every minute
-        private static readonly int DEFAULT_INTERVAL_DELAY = 60000;
+        private static readonly int DefaultIntervalDelay = 60000;
 
         #endregion
 
-        private Timer timer;
-        private int intervalDelay;
-        private ElastiCacheClusterConfig config;
+        private readonly Timer _timer;
+        private readonly ElastiCacheClusterConfig _config;
 
         #region Constructors
 
         /// <summary>
         /// Creates a poller for Auto Discovery with the default intervals
         /// </summary>
-        /// <param name="client">The memcached client to update servers for</param>
+        /// <param name="config">The cluster config to update servers for</param>
         public ConfigurationPoller(ElastiCacheClusterConfig config)
-            : this(config, DEFAULT_INTERVAL_DELAY) { }
+            : this(config, DefaultIntervalDelay) { }
 
         /// <summary>
         /// Creates a poller for Auto Discovery with the defined itnerval, delay, tries, and try delay for polling
         /// </summary>
-        /// <param name="client">The memcached client to update servers for</param>
+        /// <param name="config">The cluster config to update servers for</param>
         /// <param name="intervalDelay">The amount of time between polling operations in miliseconds</param>
         public ConfigurationPoller(ElastiCacheClusterConfig config, int intervalDelay)
         {
-            this.intervalDelay = intervalDelay < 0 ? DEFAULT_INTERVAL_DELAY : intervalDelay;
-            this.config = config;
-            log = config.LoggerFactory.CreateLogger<ConfigurationPoller>();
+            intervalDelay = intervalDelay < 0 ? DefaultIntervalDelay : intervalDelay;
+            _config = config;
+            _log = config.LoggerFactory.CreateLogger<ConfigurationPoller>();
 
-            this.timer = new Timer(this.intervalDelay);
-            this.timer.Elapsed += this.pollOnTimedEvent;
+            _timer = new Timer(intervalDelay);
+            _timer.Elapsed += PollOnTimedEvent;
         }
 
         #endregion
@@ -68,54 +69,54 @@ namespace Amazon.ElastiCacheCluster
 
         internal void StartTimer()
         {
-            log.LogDebug("Starting timer");
-            this.pollOnTimedEvent(null, null);
-            this.timer.Start();
+            _log.LogDebug("Starting _timer");
+            PollOnTimedEvent(null, null);
+            _timer.Start();
         }
 
         /// <summary>
-        /// Used by the poller's timer to update the cluster configuration if a new version is available
+        /// Used by the poller's _timer to update the cluster configuration if a new version is available
         /// </summary>
-        internal void pollOnTimedEvent(Object source, ElapsedEventArgs evnt)
+        internal void PollOnTimedEvent(object source, ElapsedEventArgs evnt)
         {
-            log.LogDebug("Polling...");
+            _log.LogDebug("Polling...");
             try
             {
-                var oldVersion = config.DiscoveryNode.ClusterVersion;
-                var endPoints = config.DiscoveryNode.GetEndPointList();
-                if (oldVersion != config.DiscoveryNode.ClusterVersion || 
-                    (this.config.Pool.nodeLocator != null && endPoints.Count != this.config.Pool.nodeLocator.GetWorkingNodes().Count()))
+                var oldVersion = _config.DiscoveryNode.ClusterVersion;
+                var endPoints = _config.DiscoveryNode.GetEndPointList();
+                if (oldVersion != _config.DiscoveryNode.ClusterVersion || 
+                    (_config.Pool.NodeLocator != null && endPoints.Count != _config.Pool.NodeLocator.GetWorkingNodes().Count()))
                 {
-                    log.LogDebug("Updating endpoints to have {Count} nodes", endPoints.Count);
-                    this.config.Pool.UpdateLocator(endPoints);
+                    _log.LogDebug("Updating endpoints to have {Count} nodes", endPoints.Count);
+                    _config.Pool.UpdateLocator(endPoints);
                 }
             }
             catch(Exception e)
             {
                 try
                 {
-                    log.LogDebug("Error updating endpoints, going to attempt to reresolve configuration endpoint.", e);
-                    config.DiscoveryNode.ResolveEndPoint();
+                    _log.LogDebug("Error updating endpoints, going to attempt to reresolve configuration endpoint.", e);
+                    _config.DiscoveryNode.ResolveEndPoint();
 
-                    var oldVersion = config.DiscoveryNode.ClusterVersion;
-                    var endPoints = config.DiscoveryNode.GetEndPointList();
-                    if (oldVersion != config.DiscoveryNode.ClusterVersion ||
-                        (this.config.Pool.nodeLocator != null && endPoints.Count != this.config.Pool.nodeLocator.GetWorkingNodes().Count()))
+                    var oldVersion = _config.DiscoveryNode.ClusterVersion;
+                    var endPoints = _config.DiscoveryNode.GetEndPointList();
+                    if (oldVersion != _config.DiscoveryNode.ClusterVersion ||
+                        (_config.Pool.NodeLocator != null && endPoints.Count != _config.Pool.NodeLocator.GetWorkingNodes().Count()))
                     {
-                        log.LogDebug("Updating endpoints to have {Count} nodes", endPoints.Count);
-                        this.config.Pool.UpdateLocator(endPoints);
+                        _log.LogDebug("Updating endpoints to have {Count} nodes", endPoints.Count);
+                        _config.Pool.UpdateLocator(endPoints);
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.LogDebug("Error updating endpoints. Setting endpoints to empty collection of nodes.", ex);
+                    _log.LogDebug("Error updating endpoints. Setting endpoints to empty collection of nodes.", ex);
 
                     /* 
                      * We were not able to retrieve the current node configuration. This is most likely because the application
                      * is running in development outside of EC2. ElastiCache clusters are only accessible from an EC2 instance
                      * with the right security permissions.
                      */
-                    this.config.Pool.UpdateLocator(new List<System.Net.DnsEndPoint>());
+                    _config.Pool.UpdateLocator(new List<DnsEndPoint>());
                 }
             }
         }
@@ -127,8 +128,8 @@ namespace Amazon.ElastiCacheCluster
         /// </summary>
         public void StopPolling()
         {
-            log.LogDebug("Destroying poller thread");
-            timer?.Dispose();
+            _log.LogDebug("Destroying poller thread");
+            _timer?.Dispose();
         }
     }
 }

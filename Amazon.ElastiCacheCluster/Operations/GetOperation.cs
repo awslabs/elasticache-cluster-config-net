@@ -16,46 +16,48 @@
  * permissions and limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Amazon.ElastiCacheCluster.Helpers;
 using Enyim.Caching.Memcached;
 using Enyim.Caching.Memcached.Protocol;
 using Enyim.Caching.Memcached.Results;
 using Enyim.Caching.Memcached.Results.Extensions;
-using Amazon.ElastiCacheCluster.Helpers;
 using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Operations
 {
     internal class GetOperation : SingleItemOperation, IGetOperation, IConfigOperation
     {
-        private CacheItem result;
-        private readonly ILogger log;
+        private CacheItem _result;
+        private readonly ILogger _log;
 
         internal GetOperation(string key, ILogger log) : base(key)
         {
-            this.log = log;
+            _log = log;
         }
 
-        protected override System.Collections.Generic.IList<System.ArraySegment<byte>> GetBuffer()
+        protected override IList<ArraySegment<byte>> GetBuffer()
         {
-            var command = "gets " + this.Key + TextSocketHelper.CommandTerminator;
+            var command = "gets " + Key + TextSocketHelper.CommandTerminator;
 
             return TextSocketHelper.GetCommandBuffer(command);
         }
 
         protected override IOperationResult ReadResponse(PooledSocket socket)
         {
-            GetResponse r = GetHelper.ReadItem(socket, log);
+            GetResponse r = GetHelper.ReadItem(socket, _log);
             var result = new TextOperationResult();
 
             if (r == null) return result.Fail("Failed to read response");
 
-            this.result = r.Item;
-            this.ConfigResult = r.Item;
+            _result = r.Item;
+            ConfigResult = r.Item;
 
-            this.Cas = r.CasValue;
+            Cas = r.CasValue;
 
-            GetHelper.FinishCurrent(socket, log);
+            GetHelper.FinishCurrent(socket, _log);
 
             return result.Pass();
         }
@@ -67,12 +69,12 @@ namespace Amazon.ElastiCacheCluster.Operations
 
         CacheItem IGetOperation.Result
         {
-            get { return this.result; }
+            get { return _result; }
         }
 
-        protected override bool ReadResponseAsync(PooledSocket socket, System.Action<bool> next)
+        protected override bool ReadResponseAsync(PooledSocket socket, Action<bool> next)
         {
-            throw new System.NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public CacheItem ConfigResult { get; set; }

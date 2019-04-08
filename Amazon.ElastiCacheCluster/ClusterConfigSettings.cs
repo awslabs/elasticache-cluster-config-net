@@ -15,11 +15,12 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
 using System;
 using System.ComponentModel.DataAnnotations;
+using Amazon.ElastiCacheCluster.Factories;
 using Enyim.Caching.Configuration;
 using Enyim.Caching.Memcached;
-using Amazon.ElastiCacheCluster.Factories;
 
 namespace Amazon.ElastiCacheCluster
 {
@@ -55,7 +56,7 @@ namespace Amazon.ElastiCacheCluster
             ClusterEndPoint = new Endpoint
             {
                 HostName = hostname,
-                Port = port,
+                Port = port
             };
         }
 
@@ -88,7 +89,7 @@ namespace Amazon.ElastiCacheCluster
             /// The hostname of the cluster containing ".cfg."
             /// </summary>
             [Required]
-            public String HostName { get; set; }
+            public string HostName { get; set; }
 
             /// <summary>
             /// The port of the endpoint

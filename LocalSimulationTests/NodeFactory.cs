@@ -35,6 +35,7 @@ namespace LocalSimulationTests
 
         public IMemcachedNode CreateNode(DnsEndPoint endpoint, ISocketPoolConfiguration config, ILoggerFactory loggerFactory)
         {
+            node.EndPoint = endpoint;
             return node;
         }
     }

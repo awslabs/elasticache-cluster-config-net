@@ -15,10 +15,11 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-using Enyim.Caching.Memcached;
-using Amazon.ElastiCacheCluster.Helpers;
+
 using System;
 using System.Globalization;
+using Amazon.ElastiCacheCluster.Helpers;
+using Enyim.Caching.Memcached;
 using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster.Operations
@@ -29,7 +30,7 @@ namespace Amazon.ElastiCacheCluster.Operations
         {
             string response = TextSocketHelper.ReadResponse(socket, log);
 
-            if (String.Compare(response, "END", StringComparison.Ordinal) != 0)
+            if (string.Compare(response, "END", StringComparison.Ordinal) != 0)
                 throw new MemcachedClientException("No END was received.");
         }
 
@@ -37,10 +38,10 @@ namespace Amazon.ElastiCacheCluster.Operations
         {
             string description = TextSocketHelper.ReadResponse(socket, log);
 
-            if (String.Compare(description, "END", StringComparison.Ordinal) == 0)
+            if (string.Compare(description, "END", StringComparison.Ordinal) == 0)
                 return null;
 
-            if (description.Length < 6 || String.Compare(description, 0, "VALUE ", 0, 6, StringComparison.Ordinal) != 0)
+            if (description.Length < 6 || string.Compare(description, 0, "VALUE ", 0, 6, StringComparison.Ordinal) != 0)
                 throw new MemcachedClientException("No VALUE response received.\r\n" + description);
 
             ulong cas = 0;
@@ -54,7 +55,7 @@ namespace Amazon.ElastiCacheCluster.Operations
             //
             if (parts.Length == 5)
             {
-                if (!UInt64.TryParse(parts[4], out cas))
+                if (!ulong.TryParse(parts[4], out cas))
                     throw new MemcachedClientException("Invalid CAS VALUE received.");
 
             }
@@ -63,8 +64,8 @@ namespace Amazon.ElastiCacheCluster.Operations
                 throw new MemcachedClientException("Invalid VALUE response received: " + description);
             }
 
-            ushort flags = UInt16.Parse(parts[2], CultureInfo.InvariantCulture);
-            int length = Int32.Parse(parts[3], CultureInfo.InvariantCulture);
+            ushort flags = ushort.Parse(parts[2], CultureInfo.InvariantCulture);
+            int length = int.Parse(parts[3], CultureInfo.InvariantCulture);
 
             byte[] allData = new byte[length];
             byte[] eod = new byte[2];
@@ -83,15 +84,14 @@ namespace Amazon.ElastiCacheCluster.Operations
     #region [ T:GetResponse                  ]
     internal class GetResponse
     {
-        private GetResponse() { }
         public GetResponse(string key, ushort flags, ulong casValue, byte[] data) : this(key, flags, casValue, data, 0, data.Length) { }
 
         public GetResponse(string key, ushort flags, ulong casValue, byte[] data, int offset, int count)
         {
-            this.Key = key;
-            this.CasValue = casValue;
+            Key = key;
+            CasValue = casValue;
 
-            this.Item = new CacheItem(flags, new ArraySegment<byte>(data, offset, count));
+            Item = new CacheItem(flags, new ArraySegment<byte>(data, offset, count));
         }
 
         public readonly string Key;

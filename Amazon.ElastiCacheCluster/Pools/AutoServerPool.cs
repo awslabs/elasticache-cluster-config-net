@@ -15,9 +15,10 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using Enyim.Caching.Configuration;
@@ -29,54 +30,55 @@ namespace Amazon.ElastiCacheCluster.Pools
     /// <summary>
     /// A server pool just like the default that enables safely changing the servers of the locator
     /// </summary>
-    internal class AutoServerPool : IServerPool, IDisposable
+    internal class AutoServerPool : IServerPool
     {
-        private readonly ILogger log;
+        private readonly ILogger _log;
 
-        private IMemcachedNode[] allNodes;
+        private IMemcachedNode[] _allNodes;
 
-        private IMemcachedClientConfiguration configuration;
-        private IOperationFactory factory;
-        internal IMemcachedNodeLocator nodeLocator;
+        private readonly IMemcachedClientConfiguration _configuration;
+        private readonly IOperationFactory _factory;
+        internal IMemcachedNodeLocator NodeLocator;
 
-        private object DeadSync = new Object();
-        private System.Threading.Timer resurrectTimer;
-        private bool isTimerActive;
-        private long deadTimeoutMsec;
-        private bool isDisposed;
-        private event Action<IMemcachedNode> nodeFailed;
-        private readonly ILoggerFactory loggerFactory;
+        private readonly object _deadSync = new object();
+        private Timer _resurrectTimer;
+        private bool _isTimerActive;
+        private readonly long _deadTimeoutMsec;
+        private bool _isDisposed;
+        private event Action<IMemcachedNode> NodeFailed;
+        private readonly ILoggerFactory _loggerFactory;
 
         /// <summary>
         /// Creates a server pool for auto discovery
         /// </summary>
         /// <param name="configuration">The client configuration using the pool</param>
         /// <param name="opFactory">The factory used to create operations on demand</param>
+        /// <param name="loggerFactory">The factory to provide ILogger instance to each class.</param>
         public AutoServerPool(IMemcachedClientConfiguration configuration, IOperationFactory opFactory, ILoggerFactory loggerFactory)
         {
-            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            this.factory = opFactory ?? throw new ArgumentNullException(nameof(opFactory));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _factory = opFactory ?? throw new ArgumentNullException(nameof(opFactory));
 
-            this.deadTimeoutMsec = (long)this.configuration.SocketPool.DeadTimeout.TotalMilliseconds;
-            this.loggerFactory = loggerFactory;
-            log = loggerFactory.CreateLogger<AutoServerPool>();
+            _deadTimeoutMsec = (long)_configuration.SocketPool.DeadTimeout.TotalMilliseconds;
+            _loggerFactory = loggerFactory;
+            _log = loggerFactory.CreateLogger<AutoServerPool>();
         }
 
         ~AutoServerPool()
         {
             try { ((IDisposable)this).Dispose(); }
-            catch { }
+            catch { /* ignored */ }
         }
 
         protected virtual IMemcachedNode CreateNode(DnsEndPoint endpoint)
         {
-            return new MemcachedNode(endpoint, this.configuration.SocketPool,
-                loggerFactory.CreateLogger<MemcachedNode>());
+            return new MemcachedNode(endpoint, _configuration.SocketPool,
+                _loggerFactory.CreateLogger<MemcachedNode>());
         }
 
-        private void rezCallback(object state)
+        private void RezCallback(object state)
         {
-            log.LogDebug("Checking the dead servers.");
+            _log.LogDebug("Checking the dead servers.");
 
             // how this works:
             // 1. timer is created but suspended
@@ -92,16 +94,16 @@ namespace Amazon.ElastiCacheCluster.Pools
             // 6. if at least one server is still down (Ping() == false), we restart the timer
             // 7. if all servers are up, we set isRunning to false, so the timer is suspended
             // 8. GOTO 2
-            lock (this.DeadSync)
+            lock (_deadSync)
             {
-                if (this.isDisposed)
+                if (_isDisposed)
                 {
-                    log.LogWarning("IsAlive timer was triggered but the pool is already disposed. Ignoring.");
+                    _log.LogWarning("IsAlive timer was triggered but the pool is already disposed. Ignoring.");
 
                     return;
                 }
 
-                var nodes = this.allNodes;
+                var nodes = _allNodes;
                 var aliveList = new List<IMemcachedNode>(nodes.Length);
                 var changed = false;
                 var deadCount = 0;
@@ -111,24 +113,24 @@ namespace Amazon.ElastiCacheCluster.Pools
                     var n = nodes[i];
                     if (n.IsAlive)
                     {
-                        log.LogDebug("Alive: {EndPoint}", n.EndPoint);
+                        _log.LogDebug("Alive: {EndPoint}", n.EndPoint);
 
                         aliveList.Add(n);
                     }
                     else
                     {
-                        log.LogDebug("Dead: {EndPoint}", n.EndPoint);
+                        _log.LogDebug("Dead: {EndPoint}", n.EndPoint);
 
                         if (n.Ping())
                         {
                             changed = true;
                             aliveList.Add(n);
 
-                            log.LogDebug("Ping ok.");
+                            _log.LogDebug("Ping ok.");
                         }
                         else
                         {
-                            log.LogDebug("Still dead.");
+                            _log.LogDebug("Still dead.");
 
                             deadCount++;
                         }
@@ -138,66 +140,66 @@ namespace Amazon.ElastiCacheCluster.Pools
                 // reinit the locator
                 if (changed)
                 {
-                    log.LogDebug("Reinitializing the locator.");
+                    _log.LogDebug("Reinitializing the locator.");
 
-                    this.nodeLocator.Initialize(aliveList);
+                    NodeLocator.Initialize(aliveList);
                 }
 
                 // stop or restart the timer
                 if (deadCount == 0)
                 {
-                    log.LogDebug("deadCount == 0, stopping the timer.");
+                    _log.LogDebug("deadCount == 0, stopping the timer.");
 
-                    this.isTimerActive = false;
+                    _isTimerActive = false;
                 }
                 else
                 {
-                    log.LogDebug("deadCount == {deadCount}, starting the timer.", deadCount);
+                    _log.LogDebug("deadCount == {deadCount}, starting the timer.", deadCount);
 
-                    this.resurrectTimer.Change(this.deadTimeoutMsec, Timeout.Infinite);
+                    _resurrectTimer.Change(_deadTimeoutMsec, Timeout.Infinite);
                 }
             }
         }
 
         private void NodeFail(IMemcachedNode node)
         {
-            log.LogDebug("Node {EndPoint} is dead.", node.EndPoint);
+            _log.LogDebug("Node {EndPoint} is dead.", node.EndPoint);
 
             // the timer is stopped until we encounter the first dead server
             // when we have one, we trigger it and it will run after DeadTimeout has elapsed
-            lock (this.DeadSync)
+            lock (_deadSync)
             {
-                if (this.isDisposed)
+                if (_isDisposed)
                 {
-                    log.LogWarning("Got a node fail but the pool is already disposed. Ignoring.");
+                    _log.LogWarning("Got a node fail but the pool is already disposed. Ignoring.");
 
                     return;
                 }
 
                 // bubble up the fail event to the client
-                var fail = this.nodeFailed;
+                var fail = NodeFailed;
                 if (fail != null)
                     fail(node);
 
                 // re-initialize the locator
-                var newLocator = this.configuration.CreateNodeLocator();
-                newLocator.Initialize(allNodes.Where(n => n.IsAlive).ToArray());
-                Interlocked.Exchange(ref this.nodeLocator, newLocator);
+                var newLocator = _configuration.CreateNodeLocator();
+                newLocator.Initialize(_allNodes.Where(n => n.IsAlive).ToArray());
+                Interlocked.Exchange(ref NodeLocator, newLocator);
 
                 // the timer is stopped until we encounter the first dead server
                 // when we have one, we trigger it and it will run after DeadTimeout has elapsed
-                if (!this.isTimerActive)
+                if (!_isTimerActive)
                 {
-                    log.LogDebug("Starting the recovery timer.");
+                    _log.LogDebug("Starting the recovery timer.");
 
-                    if (this.resurrectTimer == null)
-                        this.resurrectTimer = new Timer(this.rezCallback, null, this.deadTimeoutMsec, Timeout.Infinite);
+                    if (_resurrectTimer == null)
+                        _resurrectTimer = new Timer(RezCallback, null, _deadTimeoutMsec, Timeout.Infinite);
                     else
-                        this.resurrectTimer.Change(this.deadTimeoutMsec, Timeout.Infinite);
+                        _resurrectTimer.Change(_deadTimeoutMsec, Timeout.Infinite);
 
-                    this.isTimerActive = true;
+                    _isTimerActive = true;
 
-                    log.LogDebug("Timer started.");
+                    _log.LogDebug("Timer started.");
                 }
             }
         }
@@ -206,50 +208,50 @@ namespace Amazon.ElastiCacheCluster.Pools
 
         IMemcachedNode IServerPool.Locate(string key)
         {
-            var node = this.nodeLocator.Locate(key);
+            var node = NodeLocator.Locate(key);
 
             return node;
         }
 
         IOperationFactory IServerPool.OperationFactory
         {
-            get { return this.factory; }
+            get { return _factory; }
         }
 
         IEnumerable<IMemcachedNode> IServerPool.GetWorkingNodes()
         {
-            return this.nodeLocator.GetWorkingNodes();
+            return NodeLocator.GetWorkingNodes();
         }
 
         void IServerPool.Start()
         {
-            this.allNodes = this.configuration.Servers.
+            _allNodes = _configuration.Servers.
                                 Select(ip =>
                                 {
-                                    var node = this.CreateNode(ip);
-                                    node.Failed += this.NodeFail;
+                                    var node = CreateNode(ip);
+                                    node.Failed += NodeFail;
 
                                     return node;
                                 }).
                                 ToArray();
 
             // initialize the locator
-            var locator = this.configuration.CreateNodeLocator();
-            locator.Initialize(allNodes);
+            var locator = _configuration.CreateNodeLocator();
+            locator.Initialize(_allNodes);
 
-            this.nodeLocator = locator;
+            NodeLocator = locator;
 
-            var config = this.configuration as ElastiCacheClusterConfig;
-            if (config.setup.ClusterPoller.IntervalDelay < 0)
+            var config = (ElastiCacheClusterConfig)_configuration;
+            if (config.Setup.ClusterPoller.IntervalDelay < 0)
                 config.DiscoveryNode.StartPoller();
             else
-                config.DiscoveryNode.StartPoller(config.setup.ClusterPoller.IntervalDelay);
+                config.DiscoveryNode.StartPoller(config.Setup.ClusterPoller.IntervalDelay);
         }
 
         event Action<IMemcachedNode> IServerPool.NodeFailed
         {
-            add { this.nodeFailed += value; }
-            remove { this.nodeFailed -= value; }
+            add { NodeFailed += value; }
+            remove { NodeFailed -= value; }
         }
 
         #endregion
@@ -259,32 +261,32 @@ namespace Amazon.ElastiCacheCluster.Pools
         {
             GC.SuppressFinalize(this);
 
-            lock (this.DeadSync)
+            lock (_deadSync)
             {
-                if (this.isDisposed) return;
+                if (_isDisposed) return;
 
-                this.isDisposed = true;
+                _isDisposed = true;
 
                 // dispose the locator first, maybe it wants to access 
                 // the nodes one last time
-                var nd = this.nodeLocator as IDisposable;
+                var nd = NodeLocator as IDisposable;
                 if (nd != null)
                     try { nd.Dispose(); }
-                    catch (Exception e) { log.LogError(e, "Error on disposing a node locator"); }
+                    catch (Exception e) { _log.LogError(e, "Error on disposing a node locator"); }
 
-                this.nodeLocator = null;
+                NodeLocator = null;
 
-                for (var i = 0; i < this.allNodes.Length; i++)
-                    try { this.allNodes[i].Dispose(); }
-                    catch (Exception e) { log.LogError(e, "Error on disposing the nodes in pool."); }
+                for (var i = 0; i < _allNodes.Length; i++)
+                    try { _allNodes[i].Dispose(); }
+                    catch (Exception e) { _log.LogError(e, "Error on disposing the nodes in pool."); }
 
                 // stop the timer
-                if (this.resurrectTimer != null)
-                    using (this.resurrectTimer)
-                        this.resurrectTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                if (_resurrectTimer != null)
+                    using (_resurrectTimer)
+                        _resurrectTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-                this.allNodes = null;
-                this.resurrectTimer = null;
+                _allNodes = null;
+                _resurrectTimer = null;
             }
         }
 
@@ -296,12 +298,12 @@ namespace Amazon.ElastiCacheCluster.Pools
         /// <param name="endPoints">The connections to all the cluster nodes</param>
         public void UpdateLocator(List<DnsEndPoint> endPoints)
         {
-            var newLocator = this.configuration.CreateNodeLocator();
+            var newLocator = _configuration.CreateNodeLocator();
 
             var nodes = endPoints.Select(ip =>
             {
-                var node = this.CreateNode(ip);
-                node.Failed += this.NodeFail;
+                var node = CreateNode(ip);
+                node.Failed += NodeFail;
 
                 return node;
             }).ToArray();
@@ -310,7 +312,7 @@ namespace Amazon.ElastiCacheCluster.Pools
             var deadList = new List<IMemcachedNode>(nodes.Length);
             foreach (var node in nodes)
             {
-                var result = this.allNodes.Where(n => n.EndPoint.Equals(node.EndPoint)).ToList();
+                var result = _allNodes.Where(n => n.EndPoint.Equals(node.EndPoint)).ToList();
 
                 if (result.Count > 0 && !result[0].IsAlive)
                 {
@@ -328,9 +330,9 @@ namespace Amazon.ElastiCacheCluster.Pools
             allNodesList.AddRange(aliveList);
             allNodesList.AddRange(deadList);
 
-            this.allNodes = allNodesList.ToArray();
+            _allNodes = allNodesList.ToArray();
 
-            Interlocked.Exchange(ref this.nodeLocator, newLocator);
+            Interlocked.Exchange(ref NodeLocator, newLocator);
         }
     }
 }

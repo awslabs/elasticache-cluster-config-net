@@ -15,17 +15,16 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Enyim.Caching.Memcached;
-using Enyim.Reflection;
-using Enyim.Caching.Memcached.Protocol.Binary;
-using Enyim.Caching.Configuration;
-using Amazon.ElastiCacheCluster.Pools;
 using Amazon.ElastiCacheCluster.Factories;
-using System.Configuration;
-using Microsoft.Extensions.Configuration;
+using Amazon.ElastiCacheCluster.Pools;
+using Enyim.Caching.Configuration;
+using Enyim.Caching.Memcached;
+using Enyim.Caching.Memcached.Protocol.Text;
+using Enyim.Reflection;
 using Microsoft.Extensions.Logging;
 
 namespace Amazon.ElastiCacheCluster
@@ -36,25 +35,26 @@ namespace Amazon.ElastiCacheCluster
     public class ElastiCacheClusterConfig : IMemcachedClientConfiguration
     {
         // these are lazy initialized in the getters
-        private Type nodeLocator;
-        private ITranscoder transcoder;
-        private IMemcachedKeyTransformer keyTransformer;
-        private ILoggerFactory loggerFactory;
+        private Type _nodeLocator;
+        private ITranscoder _transcoder;
+        private IMemcachedKeyTransformer _keyTransformer;
+        private readonly ILoggerFactory _loggerFactory;
 
-        internal ClusterConfigSettings setup;
+        internal readonly ClusterConfigSettings Setup;
         internal AutoServerPool Pool;
-        internal IConfigNodeFactory nodeFactory;
+        internal readonly IConfigNodeFactory NodeFactory;
 
         /// <summary>
         /// The node used to check the cluster's configuration
         /// </summary>
-        public DiscoveryNode DiscoveryNode { get; private set; }
+        public DiscoveryNode DiscoveryNode { get; }
 
         #region Constructors
 
         /// <summary>
         /// Initializes a MemcahcedClient config with auto discovery enabled
         /// </summary>
+        /// <param name="loggerFactory">The factory to provide ILogger instance to each class.</param>
         /// <param name="hostname">The hostname of the cluster containing ".cfg."</param>
         /// <param name="port">The port to connect to for communication</param>
         public ElastiCacheClusterConfig(ILoggerFactory loggerFactory, string hostname, int port)
@@ -63,6 +63,7 @@ namespace Amazon.ElastiCacheCluster
         /// <summary>
         /// Initializes a MemcahcedClient config with auto discovery enabled using the setup provided
         /// </summary>
+        /// <param name="loggerFactory">The factory to provide ILogger instance to each class.</param>
         /// <param name="setup">The setup to get conifg settings from</param>
         public ElastiCacheClusterConfig(ILoggerFactory loggerFactory, ClusterConfigSettings setup)
         {
@@ -70,39 +71,39 @@ namespace Amazon.ElastiCacheCluster
                 throw new ArgumentNullException(nameof(setup));
             if (setup.ClusterEndPoint == null)
                 throw new ArgumentException("Cluster Settings are null");
-            if (String.IsNullOrEmpty(setup.ClusterEndPoint.HostName))
+            if (string.IsNullOrEmpty(setup.ClusterEndPoint.HostName))
                 throw new ArgumentException("Hostname is null");
             if (setup.ClusterEndPoint.Port <= 0)
                 throw new ArgumentException("Port cannot be 0 or less");
 
-            this.loggerFactory = loggerFactory;
-            this.setup = setup;
-            this.Servers = new List<DnsEndPoint>();
+            _loggerFactory = loggerFactory;
+            Setup = setup;
+            Servers = new List<DnsEndPoint>();
 
-            this.Protocol = setup.Protocol;
+            Protocol = setup.Protocol;
 
-            this.KeyTransformer = setup.KeyTransformer ?? new DefaultKeyTransformer();
-            this.SocketPool = setup.SocketPool ?? new SocketPoolConfiguration();
-            this.Authentication = setup.Authentication ?? new AuthenticationConfiguration();
+            KeyTransformer = setup.KeyTransformer ?? new DefaultKeyTransformer();
+            SocketPool = setup.SocketPool ?? new SocketPoolConfiguration();
+            Authentication = setup.Authentication ?? new AuthenticationConfiguration();
 
-            this.nodeFactory = setup.NodeFactory ?? new DefaultConfigNodeFactory();
-            this.nodeLocator = setup.NodeLocator ?? typeof(DefaultNodeLocator);
+            NodeFactory = setup.NodeFactory ?? new DefaultConfigNodeFactory();
+            _nodeLocator = setup.NodeLocator ?? typeof(DefaultNodeLocator);
             
             if (setup.Transcoder != null)
             {
-                this.transcoder = setup.Transcoder ?? new DefaultTranscoder();
+                _transcoder = setup.Transcoder ?? new DefaultTranscoder();
             }
             
             if (setup.ClusterEndPoint.HostName.IndexOf(".cfg", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 if (setup.ClusterNode != null)
                 {
-                    var _tries = setup.ClusterNode.NodeTries > 0 ? setup.ClusterNode.NodeTries : DiscoveryNode.DEFAULT_TRY_COUNT;
-                    var _delay = setup.ClusterNode.NodeDelay >= 0 ? setup.ClusterNode.NodeDelay : DiscoveryNode.DEFAULT_TRY_DELAY;
-                    this.DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port, _tries, _delay);
+                    var tries = setup.ClusterNode.NodeTries > 0 ? setup.ClusterNode.NodeTries : DiscoveryNode.DefaultTryCount;
+                    var delay = setup.ClusterNode.NodeDelay >= 0 ? setup.ClusterNode.NodeDelay : DiscoveryNode.DefaultTryDelay;
+                    DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port, tries, delay);
                 }
                 else
-                    this.DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port);
+                    DiscoveryNode = new DiscoveryNode(this, setup.ClusterEndPoint.HostName, setup.ClusterEndPoint.Port);
             }
             else
             {
@@ -134,8 +135,8 @@ namespace Amazon.ElastiCacheCluster
         /// </summary>
         public IMemcachedKeyTransformer KeyTransformer
         {
-            get { return this.keyTransformer ?? (this.keyTransformer = new DefaultKeyTransformer()); }
-            set { this.keyTransformer = value; }
+            get { return _keyTransformer ?? (_keyTransformer = new DefaultKeyTransformer()); }
+            set { _keyTransformer = value; }
         }
 
         /// <summary>
@@ -144,11 +145,11 @@ namespace Amazon.ElastiCacheCluster
         /// <remarks>If both <see cref="M:NodeLocator"/> and  <see cref="M:NodeLocatorFactory"/> are assigned then the latter takes precedence.</remarks>
         public Type NodeLocator
         {
-            get { return this.nodeLocator; }
+            get { return _nodeLocator; }
             set
             {
                 ConfigurationHelper.CheckForInterface(value, typeof(IMemcachedNodeLocator));
-                this.nodeLocator = value;
+                _nodeLocator = value;
             }
         }
 
@@ -163,8 +164,8 @@ namespace Amazon.ElastiCacheCluster
         /// </summary>
         public ITranscoder Transcoder
         {
-            get { return this.transcoder ?? (this.transcoder = new DefaultTranscoder()); }
-            set { this.transcoder = value; }
+            get { return _transcoder ?? (_transcoder = new DefaultTranscoder()); }
+            set { _transcoder = value; }
         }
 
         /// <summary>
@@ -175,63 +176,63 @@ namespace Amazon.ElastiCacheCluster
         /// <summary>
         /// Gets ILoggerFactory instance.
         /// </summary>
-        public ILoggerFactory LoggerFactory => loggerFactory;
+        public ILoggerFactory LoggerFactory => _loggerFactory;
 
         #endregion
 
         #region [ interface                     ]
 
-        IList<System.Net.DnsEndPoint> IMemcachedClientConfiguration.Servers
+        IList<DnsEndPoint> IMemcachedClientConfiguration.Servers
         {
-            get { return this.Servers; }
+            get { return Servers; }
         }
 
         ISocketPoolConfiguration IMemcachedClientConfiguration.SocketPool
         {
-            get { return this.SocketPool; }
+            get { return SocketPool; }
         }
 
         IAuthenticationConfiguration IMemcachedClientConfiguration.Authentication
         {
-            get { return this.Authentication; }
+            get { return Authentication; }
         }
 
         IMemcachedKeyTransformer IMemcachedClientConfiguration.CreateKeyTransformer()
         {
-            return this.KeyTransformer;
+            return KeyTransformer;
         }
 
         IMemcachedNodeLocator IMemcachedClientConfiguration.CreateNodeLocator()
         {
-            var f = this.NodeLocatorFactory;
+            var f = NodeLocatorFactory;
             if (f != null) return f.Create();
 
-            return this.NodeLocator == null
+            return NodeLocator == null
                     ? new DefaultNodeLocator()
-                    : (IMemcachedNodeLocator)FastActivator.Create(this.NodeLocator);
+                    : (IMemcachedNodeLocator)FastActivator.Create(NodeLocator);
         }
 
         ITranscoder IMemcachedClientConfiguration.CreateTranscoder()
         {
-            return this.Transcoder;
+            return Transcoder;
         }
 
         IServerPool IMemcachedClientConfiguration.CreatePool()
         {
-            switch (this.Protocol)
+            switch (Protocol)
             {
                 case MemcachedProtocol.Text:
-                    this.Pool = new AutoServerPool(
-                        this, new Enyim.Caching.Memcached.Protocol.Text.TextOperationFactory(), loggerFactory);
+                    Pool = new AutoServerPool(
+                        this, new TextOperationFactory(), _loggerFactory);
                     break;
                 case MemcachedProtocol.Binary:
-                    this.Pool = new AutoBinaryPool(this, loggerFactory);
+                    Pool = new AutoBinaryPool(this, _loggerFactory);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("Unknown protocol: " + (int)this.Protocol);
+                    throw new ArgumentOutOfRangeException("Unknown protocol: " + (int)Protocol);
             }
 
-            return this.Pool;
+            return Pool;
         }
 
         #endregion
