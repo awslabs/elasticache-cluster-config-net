@@ -1,11 +1,14 @@
-﻿namespace ClusterClientAppTester
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace ClusterClientAppTester
 {
     partial class Form1
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -362,34 +365,34 @@
 
         #endregion
 
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox TextPort;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button ButtonInstantiate;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button ButtonAdd;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox TextValue;
-        private System.Windows.Forms.TextBox TextKey;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.Label LabelValue;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox TextGetKey;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Button ButtonGet;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label LabelStatus;
-        private System.Windows.Forms.ProgressBar ProgressBarStatus;
-        private System.Windows.Forms.TextBox TextOlder;
-        private System.Windows.Forms.Button ButtonOlder;
-        private System.Windows.Forms.Button ButtonExit;
-        private System.Windows.Forms.ProgressBar ProgressPoller;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Timer TimerPoller;
-        private System.Windows.Forms.Label LabelVersion;
+        private GroupBox groupBox1;
+        private Label label2;
+        private TextBox TextPort;
+        private Label label1;
+        private Button ButtonInstantiate;
+        private GroupBox groupBox2;
+        private Button ButtonAdd;
+        private Label label4;
+        private Label label3;
+        private TextBox TextValue;
+        private TextBox TextKey;
+        private GroupBox groupBox3;
+        private Label LabelValue;
+        private Label label6;
+        private TextBox TextGetKey;
+        private Label label5;
+        private Button ButtonGet;
+        private Label label7;
+        private Label LabelStatus;
+        private ProgressBar ProgressBarStatus;
+        private TextBox TextOlder;
+        private Button ButtonOlder;
+        private Button ButtonExit;
+        private ProgressBar ProgressPoller;
+        private Label label8;
+        private GroupBox groupBox4;
+        private Timer TimerPoller;
+        private Label LabelVersion;
     }
 }
 
