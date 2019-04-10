@@ -246,6 +246,8 @@ namespace Amazon.ElastiCacheCluster.Pools
                 config.DiscoveryNode.StartPoller();
             else
                 config.DiscoveryNode.StartPoller(config.Setup.ClusterPoller.IntervalDelay);
+            
+            LogNodes();
         }
 
         event Action<IMemcachedNode> IServerPool.NodeFailed
@@ -333,6 +335,13 @@ namespace Amazon.ElastiCacheCluster.Pools
             _allNodes = allNodesList.ToArray();
 
             Interlocked.Exchange(ref NodeLocator, newLocator);
+            LogNodes();
+        }
+
+        private void LogNodes()
+        {
+            _log.LogDebug("Node list has been updated: {NodeList}", 
+                string.Join("|", _allNodes.Select(x => x.EndPoint.ToString())));
         }
     }
 }

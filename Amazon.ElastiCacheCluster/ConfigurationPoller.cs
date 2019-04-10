@@ -95,7 +95,7 @@ namespace Amazon.ElastiCacheCluster
             {
                 try
                 {
-                    _log.LogDebug("Error updating endpoints, going to attempt to reresolve configuration endpoint.", e);
+                    _log.LogError(e, "Error updating endpoints, going to attempt to reresolve configuration endpoint.");
                     _config.DiscoveryNode.ResolveEndPoint();
 
                     var oldVersion = _config.DiscoveryNode.ClusterVersion;
@@ -109,7 +109,7 @@ namespace Amazon.ElastiCacheCluster
                 }
                 catch (Exception ex)
                 {
-                    _log.LogDebug("Error updating endpoints. Setting endpoints to empty collection of nodes.", ex);
+                    _log.LogError(ex, "Error updating endpoints. Setting endpoints to empty collection of nodes.");
 
                     /* 
                      * We were not able to retrieve the current node configuration. This is most likely because the application
