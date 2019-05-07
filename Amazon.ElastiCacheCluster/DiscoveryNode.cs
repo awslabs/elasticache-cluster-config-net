@@ -59,7 +59,7 @@ namespace Amazon.ElastiCacheCluster
 
         #region Private Fields
 
-        private DnsEndPoint _endPoint;
+        private EndPoint _endPoint;
 
         private IMemcachedNode _node;
 
@@ -137,7 +137,7 @@ namespace Amazon.ElastiCacheCluster
         /// </summary>
         internal void StartPoller()
         {
-            _config.Pool.UpdateLocator(new List<DnsEndPoint>(new[] { _endPoint }));
+            _config.Pool.UpdateLocator(new List<EndPoint>(new[] { _endPoint }));
             _poller = new ConfigurationPoller(_config);
             _poller.StartTimer();
         }
@@ -159,7 +159,7 @@ namespace Amazon.ElastiCacheCluster
         /// Parses the string NodeConfig into a list of IPEndPoints for configuration
         /// </summary>
         /// <returns>A list of IPEndPoints for config to use</returns>
-        internal List<DnsEndPoint> GetEndPointList()
+        internal List<EndPoint> GetEndPointList()
         {
             try
             {
@@ -187,7 +187,7 @@ namespace Amazon.ElastiCacheCluster
                     }
                 }
 
-                return endpoints;
+                return endpoints.Cast<EndPoint>().ToList();
             }
             catch (Exception ex)
             {
@@ -307,7 +307,7 @@ namespace Amazon.ElastiCacheCluster
         /// Tries to resolve the endpoint ip, used if the connection fails
         /// </summary>
         /// <returns>The resolved endpoint as an ip and port</returns>
-        internal DnsEndPoint ResolveEndPoint()
+        internal EndPoint ResolveEndPoint()
         {
             IPHostEntry entry = null;
             var waiting = true;

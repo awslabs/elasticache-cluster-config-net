@@ -45,7 +45,7 @@ namespace Amazon.ElastiCacheCluster.Pools
             _loggerFactory = loggerFactory;
         }
 
-        protected override IMemcachedNode CreateNode(DnsEndPoint endpoint)
+        protected override IMemcachedNode CreateNode(EndPoint endpoint)
         {
             if (endpoint == null)
                 throw new ArgumentNullException(nameof(endpoint));

@@ -116,7 +116,7 @@ namespace Amazon.ElastiCacheCluster
                      * is running in development outside of EC2. ElastiCache clusters are only accessible from an EC2 instance
                      * with the right security permissions.
                      */
-                    _config.Pool.UpdateLocator(new List<DnsEndPoint>());
+                    _config.Pool.UpdateLocator(new List<EndPoint>());
                 }
             }
         }

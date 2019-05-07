@@ -78,7 +78,7 @@ namespace Amazon.ElastiCacheCluster
 
             _loggerFactory = loggerFactory;
             Setup = setup;
-            Servers = new List<DnsEndPoint>();
+            Servers = new List<EndPoint>();
 
             Protocol = setup.Protocol;
 
@@ -118,7 +118,7 @@ namespace Amazon.ElastiCacheCluster
         /// <summary>
         /// Gets a list of <see cref="T:IPEndPoint"/> each representing a Memcached server in the pool.
         /// </summary>
-        public IList<DnsEndPoint> Servers { get; private set; }
+        public IList<EndPoint> Servers { get; private set; }
 
         /// <summary>
         /// Gets the configuration of the socket pool.
@@ -182,7 +182,7 @@ namespace Amazon.ElastiCacheCluster
 
         #region [ interface                     ]
 
-        IList<DnsEndPoint> IMemcachedClientConfiguration.Servers
+        IList<EndPoint> IMemcachedClientConfiguration.Servers
         {
             get { return Servers; }
         }

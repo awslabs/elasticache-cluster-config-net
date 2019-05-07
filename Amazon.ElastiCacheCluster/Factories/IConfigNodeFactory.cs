@@ -22,6 +22,6 @@ namespace Amazon.ElastiCacheCluster.Factories
 {
     public interface IConfigNodeFactory
     {
-        IMemcachedNode CreateNode(DnsEndPoint endpoint, ISocketPoolConfiguration config, ILoggerFactory loggerFactory);
+        IMemcachedNode CreateNode(EndPoint endpoint, ISocketPoolConfiguration config, ILoggerFactory loggerFactory);
     }
 }

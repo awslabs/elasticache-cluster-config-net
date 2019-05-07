@@ -70,7 +70,7 @@ namespace Amazon.ElastiCacheCluster.Pools
             catch { /* ignored */ }
         }
 
-        protected virtual IMemcachedNode CreateNode(DnsEndPoint endpoint)
+        protected virtual IMemcachedNode CreateNode(EndPoint endpoint)
         {
             return new MemcachedNode(endpoint, _configuration.SocketPool,
                 _loggerFactory.CreateLogger<MemcachedNode>());
@@ -298,7 +298,7 @@ namespace Amazon.ElastiCacheCluster.Pools
         /// Used to update the servers for Auto discovery
         /// </summary>
         /// <param name="endPoints">The connections to all the cluster nodes</param>
-        public void UpdateLocator(List<DnsEndPoint> endPoints)
+        public void UpdateLocator(List<EndPoint> endPoints)
         {
             var newLocator = _configuration.CreateNodeLocator();
 
