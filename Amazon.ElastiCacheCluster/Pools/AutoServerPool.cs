@@ -1,15 +1,15 @@
 ﻿/*
  * Copyright 2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * 
+ *
  * Portions copyright 2010 Attila Kiskó, enyim.com. Please see LICENSE.txt
  * for applicable license terms and NOTICE.txt for applicable notices.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
- * 
+ *
  *  http://aws.amazon.com/apache2.0
- * 
+ *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
@@ -246,7 +246,7 @@ namespace Amazon.ElastiCacheCluster.Pools
                 config.DiscoveryNode.StartPoller();
             else
                 config.DiscoveryNode.StartPoller(config.Setup.ClusterPoller.IntervalDelay);
-            
+
             LogNodes();
         }
 
@@ -269,7 +269,7 @@ namespace Amazon.ElastiCacheCluster.Pools
 
                 _isDisposed = true;
 
-                // dispose the locator first, maybe it wants to access 
+                // dispose the locator first, maybe it wants to access
                 // the nodes one last time
                 var nd = NodeLocator as IDisposable;
                 if (nd != null)
@@ -340,7 +340,7 @@ namespace Amazon.ElastiCacheCluster.Pools
 
         private void LogNodes()
         {
-            _log.LogDebug("Node list has been updated: {NodeList}", 
+            _log.LogDebug("Node list has been updated: {NodeList}",
                 string.Join("|", _allNodes.Select(x => x.EndPoint.ToString())));
         }
     }

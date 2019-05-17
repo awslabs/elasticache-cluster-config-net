@@ -1,12 +1,12 @@
 ﻿/*
  * Copyright 2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
- * 
+ *
  *  http://aws.amazon.com/apache2.0
- * 
+ *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
@@ -91,7 +91,7 @@ namespace Amazon.ElastiCacheCluster
         /// <param name="port">The port of the cluster</param>
         /// <param name="tries">The number of tries for requesting config info</param>
         /// <param name="delay">The time, in miliseconds, to wait between tries</param>
-        internal DiscoveryNode(ElastiCacheClusterConfig config, string hostname, int port, 
+        internal DiscoveryNode(ElastiCacheClusterConfig config, string hostname, int port,
             int tries = DefaultTryCount, int delay = DefaultTryDelay)
         {
             #region Param Checks
@@ -187,12 +187,12 @@ namespace Amazon.ElastiCacheCluster
                     }
                 }
 
-                return endpoints.Cast<EndPoint>().ToList();
+                return endpoints;
             }
             catch (Exception ex)
             {
                 // Error getting the list of endpoints. Most likely this is due to the
-                // client being used outside of EC2. 
+                // client being used outside of EC2.
                 _log.LogError(ex, "Error getting endpoints list");
                 throw;
             }
@@ -343,7 +343,7 @@ namespace Amazon.ElastiCacheCluster
 
             lock (_endpointLock)
             {
-                _endPoint = new DnsEndPoint(entry.AddressList[0].ToString(), _port);
+                _endPoint = new IPEndPoint(entry.AddressList[0], _port);
             }
 
             lock (_nodesLock)

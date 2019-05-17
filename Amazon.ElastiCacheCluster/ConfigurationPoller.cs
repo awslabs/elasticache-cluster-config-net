@@ -1,12 +1,12 @@
 ﻿/*
  * Copyright 2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
- * 
+ *
  *  http://aws.amazon.com/apache2.0
- * 
+ *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
@@ -84,7 +84,7 @@ namespace Amazon.ElastiCacheCluster
             {
                 var oldVersion = _config.DiscoveryNode.ClusterVersion;
                 var endPoints = _config.DiscoveryNode.GetEndPointList();
-                if (oldVersion != _config.DiscoveryNode.ClusterVersion || 
+                if (oldVersion != _config.DiscoveryNode.ClusterVersion ||
                     (_config.Pool.NodeLocator != null && endPoints.Count != _config.Pool.NodeLocator.GetWorkingNodes().Count()))
                 {
                     _log.LogDebug("Updating endpoints to have {Count} nodes", endPoints.Count);
@@ -111,7 +111,7 @@ namespace Amazon.ElastiCacheCluster
                 {
                     _log.LogError(ex, "Error updating endpoints. Setting endpoints to empty collection of nodes.");
 
-                    /* 
+                    /*
                      * We were not able to retrieve the current node configuration. This is most likely because the application
                      * is running in development outside of EC2. ElastiCache clusters are only accessible from an EC2 instance
                      * with the right security permissions.
